@@ -1,0 +1,188 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Raízes do Nordeste",
+    "version": "1.0.0",
+    "description": "API REST para pedidos multicanal, estoque por unidade, fidelidade e pagamento mock."
+  },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/auth/cadastro": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Cadastrar usuário com consentimento LGPD",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": { "type": "string", "example": "Maria Silva" },
+                  "email": { "type": "string", "example": "maria@teste.com" },
+                  "senha": { "type": "string", "example": "123456" },
+                  "consentimentoLGPD": { "type": "boolean", "example": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Usuário criado" }, "409": { "description": "E-mail duplicado" } }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Autenticar usuário e gerar token JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "pedro@teste.com" },
+                  "senha": { "type": "string", "example": "123456" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Token gerado" }, "401": { "description": "Credenciais inválidas" } }
+      }
+    },
+    "/unidades": {
+      "get": {
+        "tags": ["Loja"],
+        "summary": "Listar unidades da rede",
+        "responses": { "200": { "description": "Lista de unidades" } }
+      }
+    },
+    "/produtos": {
+      "get": {
+        "tags": ["Loja"],
+        "summary": "Listar produtos disponíveis",
+        "responses": { "200": { "description": "Lista de produtos" } }
+      },
+      "post": {
+        "tags": ["Loja"],
+        "summary": "Cadastrar produto (apenas GERENTE)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Produto criado" }, "403": { "description": "Sem permissão" } }
+      }
+    },
+    "/estoque/{unidadeId}": {
+      "get": {
+        "tags": ["Loja"],
+        "summary": "Consultar estoque por unidade",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "unidadeId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Saldo por produto" } }
+      }
+    },
+    "/fidelidade/saldo": {
+      "get": {
+        "tags": ["Fidelidade"],
+        "summary": "Consultar pontos de fidelidade do cliente logado",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Saldo de pontos" } }
+      }
+    },
+    "/pedidos": {
+      "post": {
+        "tags": ["Pedidos"],
+        "summary": "Criar pedido multicanal",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "unidadeId": { "type": "string" },
+                  "canalPedido": { "type": "string", "enum": ["APP", "TOTEM", "BALCAO", "PICKUP", "WEB"], "example": "TOTEM" },
+                  "formaPagamento": { "type": "string", "example": "PIX" },
+                  "itens": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "produtoId": { "type": "string" },
+                        "quantidade": { "type": "integer", "example": 2 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Pedido criado" }, "409": { "description": "Estoque insuficiente" } }
+      },
+      "get": {
+        "tags": ["Pedidos"],
+        "summary": "Listar pedidos (filtro opcional por canalPedido e status)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "canalPedido", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Lista de pedidos" } }
+      }
+    },
+    "/pedidos/{id}/status": {
+      "patch": {
+        "tags": ["Pedidos"],
+        "summary": "Atualizar status do pedido (ATENDENTE, COZINHA, GERENTE)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": { "type": "string", "example": "EM_PREPARO" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Status atualizado" }, "403": { "description": "Sem permissão" } }
+      }
+    },
+    "/pagamentos/processar": {
+      "post": {
+        "tags": ["Pagamentos"],
+        "summary": "Simular aprovação ou recusa de pagamento",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pedidoId": { "type": "string" },
+                  "resultado": { "type": "string", "enum": ["APROVADO", "RECUSADO"], "example": "APROVADO" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Pagamento aprovado" }, "422": { "description": "Pagamento recusado" } }
+      }
+    }
+  }
+}
