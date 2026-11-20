@@ -4,7 +4,7 @@ const prisma = require('../config/prisma');
 const { enviarErro } = require('../utils/erroPadrao');
 
 async function cadastro(req, res) {
-    const { nome, email, senha, role, consentimentoLGPD } = req.body;
+    const { nome, email, senha, consentimentoLGPD } = req.body;
 
     if (!nome || !email || !senha) {
         return enviarErro(res, req, 422, 'CAMPOS_OBRIGATORIOS', 'Nome, e-mail e senha são obrigatórios.');
