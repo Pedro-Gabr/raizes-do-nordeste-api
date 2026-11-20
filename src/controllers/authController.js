@@ -23,7 +23,7 @@ async function cadastro(req, res) {
                 nome,
                 email,
                 senha: senhaHash,
-                role: role || 'CLIENTE',
+                role: 'CLIENTE',
                 consentimentoLGPD: Boolean(consentimentoLGPD)
             }
         });
