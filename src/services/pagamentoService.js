@@ -40,6 +40,15 @@ async function processarPagamentoMock({ pedidoId, resultado, usuarioId, perfil }
         };
     }
 
+    if (pedido.status !== 'AGUARDANDO_PAGAMENTO') {
+        throw {
+            status: 409,
+            error: 'PEDIDO_NAO_PAGAVEL',
+            message: 'Este pedido não está aguardando pagamento.',
+            details: [{ field: 'pedidoId', issue: `Status atual: ${pedido.status}` }]
+        };
+    }
+
     const pagamentoSalvo = await prisma.$transaction(async (tx) => {
         const transacaoId = `MOCK-${Date.now()}`;
 
