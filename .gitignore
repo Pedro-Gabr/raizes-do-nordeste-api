@@ -1,5 +1,7 @@
 node_modules/
 .env
 dev.db
-generated/  
+generated/
 prisma.config.ts
+*.db
+*.db-journal
