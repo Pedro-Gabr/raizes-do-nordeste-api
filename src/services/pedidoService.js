@@ -4,6 +4,15 @@ const { registrarLog } = require('./auditoriaService');
 const canaisPermitidos = ['APP', 'TOTEM', 'BALCAO', 'PICKUP', 'WEB'];
 const statusPermitidos = ['AGUARDANDO_PAGAMENTO', 'PAGO', 'EM_PREPARO', 'PRONTO', 'ENTREGUE', 'CANCELADO'];
 
+const transicoesPermitidas = {
+    AGUARDANDO_PAGAMENTO: ['CANCELADO'],
+    PAGO: ['EM_PREPARO', 'CANCELADO'],
+    EM_PREPARO: ['PRONTO', 'CANCELADO'],
+    PRONTO: ['ENTREGUE', 'CANCELADO'],
+    ENTREGUE: [],
+    CANCELADO: []
+};
+
 async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPagamento }) {
     if (!canalPedido || !canaisPermitidos.includes(canalPedido)) {
         throw {
@@ -194,8 +203,25 @@ async function atualizarStatusPedido(id, status, usuarioId) {
         };
     }
 
+    const proximos = transicoesPermitidas[pedido.status] || [];
+    if (!proximos.includes(status)) {
+        throw {
+            status: 409,
+            error: 'TRANSICAO_INVALIDA',
+            message: `Não é possível mudar o pedido de ${pedido.status} para ${status}.`,
+            details: [
+                {
+                    field: 'status',
+                    issue: proximos.length > 0
+                        ? `A partir de ${pedido.status} só é permitido: ${proximos.join(', ')}`
+                        : 'Este pedido já foi finalizado e não pode mais mudar.'
+                }
+            ]
+        };
+    }
+
     const atualizado = await prisma.$transaction(async (tx) => {
-        if (status === 'CANCELADO' && pedido.status !== 'CANCELADO') {
+        if (status === 'CANCELADO') {
             for (const item of pedido.itens) {
                 await tx.estoque.update({
                     where: {
