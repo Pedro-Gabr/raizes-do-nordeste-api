@@ -23,6 +23,19 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
         };
     }
 
+        const repetidos = itens
+        .map((item) => item.produtoId)
+        .filter((id, i, lista) => lista.indexOf(id) !== i);
+
+    if (repetidos.length > 0) {
+        throw {
+            status: 422,
+            error: 'ITEM_DUPLICADO',
+            message: 'O mesmo produto aparece mais de uma vez no pedido.',
+            details: [{ field: 'itens', issue: 'Envie um único item por produto, somando as quantidades' }]
+        };
+    }
+
     const unidade = await prisma.unidade.findUnique({ where: { id: unidadeId } });
     if (!unidade) {
         throw {
