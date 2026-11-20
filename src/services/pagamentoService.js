@@ -1,7 +1,7 @@
 const prisma = require('../config/prisma');
 const { registrarLog } = require('./auditoriaService');
 
-async function processarPagamentoMock({ pedidoId, resultado, usuarioId }) {
+async function processarPagamentoMock({ pedidoId, resultado, usuarioId, perfil }) {
     if (!pedidoId || !['APROVADO', 'RECUSADO'].includes(resultado)) {
         throw {
             status: 422,
@@ -21,6 +21,14 @@ async function processarPagamentoMock({ pedidoId, resultado, usuarioId }) {
             status: 404,
             error: 'PEDIDO_NAO_ENCONTRADO',
             message: 'Pedido não encontrado.'
+        };
+    }
+
+        if (perfil === 'CLIENTE' && pedido.clienteId !== usuarioId) {
+        throw {
+            status: 403,
+            error: 'SEM_PERMISSAO',
+            message: 'Você só pode pagar os seus próprios pedidos.'
         };
     }
 

@@ -6,7 +6,8 @@ async function processar(req, res) {
         const pagamento = await pagamentoService.processarPagamentoMock({
             pedidoId: req.body.pedidoId,
             resultado: req.body.resultado,
-            usuarioId: req.usuario.id
+            usuarioId: req.usuario.id,
+            perfil: req.usuario.role
         });
 
         return res.status(pagamento.status === 'APROVADO' ? 200 : 422).json({
