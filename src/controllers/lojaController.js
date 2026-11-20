@@ -1,0 +1,73 @@
+const prisma = require('../config/prisma');
+const { enviarErro } = require('../utils/erroPadrao');
+
+async function listarUnidades(req, res) {
+    try {
+        const unidades = await prisma.unidade.findMany();
+        return res.json(unidades);
+    } catch (err) {
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao listar unidades.');
+    }
+}
+
+async function listarProdutos(req, res) {
+    try {
+        const produtos = await prisma.produto.findMany({
+            where: { disponivel: true }
+        });
+        return res.json(produtos);
+    } catch (err) {
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao listar produtos.');
+    }
+}
+
+async function criarProduto(req, res) {
+    const { nome, preco, descricao } = req.body;
+
+    if (!nome || typeof preco !== 'number' || preco <= 0) {
+        return enviarErro(res, req, 422, 'DADOS_INVALIDOS', 'Nome e preço positivo são obrigatórios.');
+    }
+
+    try {
+        const produto = await prisma.produto.create({
+            data: { nome, preco, descricao: descricao || null, disponivel: true }
+        });
+        return res.status(201).json(produto);
+    } catch (err) {
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao cadastrar produto.');
+    }
+}
+
+async function consultarEstoque(req, res) {
+    const { unidadeId } = req.params;
+
+    try {
+        const estoque = await prisma.estoque.findMany({
+            where: { unidadeId },
+            include: { produto: true }
+        });
+        return res.json(estoque);
+    } catch (err) {
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao consultar estoque.');
+    }
+}
+
+async function saldoFidelidade(req, res) {
+    try {
+        const usuario = await prisma.usuario.findUnique({
+            where: { id: req.usuario.id },
+            select: { id: true, nome: true, pontos: true, consentimentoLGPD: true }
+        });
+        return res.json(usuario);
+    } catch (err) {
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao consultar pontos.');
+    }
+}
+
+module.exports = {
+    listarUnidades,
+    listarProdutos,
+    criarProduto,
+    consultarEstoque,
+    saldoFidelidade
+};
