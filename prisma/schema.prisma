@@ -8,15 +8,16 @@ datasource db {
 }
 
 model Usuario {
-  id        String   @id @default(uuid())
-  nome      String
-  email     String   @unique
-  senha     String
-  role      String   @default("CLIENTE") 
-  pontos    Int      @default(0) 
-  consentimentoLGPD Boolean @default(false) 
-  pedidos   Pedido[]
-  criadoEm  DateTime @default(now())
+  id                String         @id @default(uuid())
+  nome              String
+  email             String         @unique
+  senha             String
+  role              String         @default("CLIENTE")
+  pontos            Int            @default(0)
+  consentimentoLGPD Boolean        @default(false)
+  criadoEm          DateTime       @default(now())
+  pedidos           Pedido[]
+  logs              LogAuditoria[]
 }
 
 model Unidade {
@@ -28,58 +29,67 @@ model Unidade {
 }
 
 model Produto {
-  id          String    @id @default(uuid())
-  nome        String
-  preco       Float
-  descricao   String?
-  disponivel  Boolean   @default(true) 
-  estoques    Estoque[]
-  itensPedido ItemPedido[]
+  id         String       @id @default(uuid())
+  nome       String
+  preco      Float
+  descricao  String?
+  disponivel Boolean      @default(true)
+  estoques   Estoque[]
+  itens      ItemPedido[]
 }
 
 model Estoque {
-  id          String  @id @default(uuid())
-  unidadeId   String
-  produtoId   String
-  quantidade  Int     @default(0)
+  id         String  @id @default(uuid())
+  unidadeId  String
+  produtoId  String
+  quantidade Int     @default(0)
+  unidade    Unidade @relation(fields: [unidadeId], references: [id])
+  produto    Produto @relation(fields: [produtoId], references: [id])
 
-  unidade Unidade @relation(fields: [unidadeId], references: [id])
-  produto Produto @relation(fields: [produtoId], references: [id])
-
-  @@unique([unidadeId, produtoId]) 
+  @@unique([unidadeId, produtoId])
 }
 
 model Pedido {
-  id          String   @id @default(uuid())
-  clienteId   String
-  unidadeId   String
-  status      String   @default("PENDENTE") 
-  total       Float
-  criadoEm    DateTime @default(now())
-
-  cliente Usuario     @relation(fields: [clienteId], references: [id])
-  unidade Unidade     @relation(fields: [unidadeId], references: [id])
-  itens   ItemPedido[]
-  pagamento Pagamento?
+  id             String       @id @default(uuid())
+  clienteId      String
+  unidadeId      String
+  canalPedido    String
+  formaPagamento String       @default("MOCK")
+  status         String       @default("AGUARDANDO_PAGAMENTO")
+  total          Float
+  criadoEm       DateTime     @default(now())
+  cliente        Usuario      @relation(fields: [clienteId], references: [id])
+  unidade        Unidade      @relation(fields: [unidadeId], references: [id])
+  itens          ItemPedido[]
+  pagamento      Pagamento?
 }
 
 model ItemPedido {
-  id        String  @id @default(uuid())
-  pedidoId  String
-  produtoId String
-  quantidade Int
-  precoUnitario Float 
-
-  pedido  Pedido  @relation(fields: [pedidoId], references: [id])
-  produto Produto @relation(fields: [produtoId], references: [id])
+  id            String  @id @default(uuid())
+  pedidoId      String
+  produtoId     String
+  quantidade    Int
+  precoUnitario Float
+  pedido        Pedido  @relation(fields: [pedidoId], references: [id])
+  produto       Produto @relation(fields: [produtoId], references: [id])
 }
 
 model Pagamento {
-  id             String  @id @default(uuid())
-  pedidoId       String  @unique
-  status         String  
-  transacaoId    String? 
-  valor          Float
-  
-  pedido Pedido @relation(fields: [pedidoId], references: [id])
+  id          String  @id @default(uuid())
+  pedidoId    String  @unique
+  status      String
+  transacaoId String?
+  valor       Float
+  pedido      Pedido  @relation(fields: [pedidoId], references: [id])
+}
+
+model LogAuditoria {
+  id         String   @id @default(uuid())
+  usuarioId  String?
+  acao       String
+  entidade   String
+  entidadeId String
+  detalhes   String?
+  criadoEm   DateTime @default(now())
+  usuario    Usuario? @relation(fields: [usuarioId], references: [id])
 }
