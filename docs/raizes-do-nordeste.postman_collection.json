@@ -1,0 +1,223 @@
+{
+  "info": {
+    "name": "Raízes do Nordeste API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "clienteToken", "value": "" },
+    { "key": "gerenteToken", "value": "" },
+    { "key": "unidadeId", "value": "74f453df-f2a8-4ee6-899c-1a563d92ec68" },
+    { "key": "tapiocaId", "value": "51090c6f-322c-453e-82f3-0179e1fbedce" },
+    { "key": "cuscuzId", "value": "1792934b-6f34-42d2-88bf-1ed824ffa0c4" },
+    { "key": "pedidoId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "T01 - Cadastrar novo cliente com consentimento LGPD",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Maria Silva\",\n  \"email\": \"maria@teste.com\",\n  \"senha\": \"123456\",\n  \"consentimentoLGPD\": true\n}"
+            },
+            "url": "{{baseUrl}}/auth/cadastro"
+          }
+        },
+        {
+          "name": "T02 - Login Cliente (gerar token)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"pedro@teste.com\",\n  \"senha\": \"123456\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "T03 - Login Gerente (gerar token)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"gerente@raizes.com\",\n  \"senha\": \"123456\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Loja e Fidelidade",
+      "item": [
+        {
+          "name": "T04 - Listar produtos disponiveis",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/produtos"
+          }
+        },
+        {
+          "name": "T05 - Consultar saldo de fidelidade do cliente",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{clienteToken}}" }],
+            "url": "{{baseUrl}}/fidelidade/saldo"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Pedidos e Pagamentos (Fluxo Positivo)",
+      "item": [
+        {
+          "name": "T06 - Criar pedido multicanal valido (TOTEM)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{clienteToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": \"{{unidadeId}}\",\n  \"canalPedido\": \"TOTEM\",\n  \"formaPagamento\": \"PIX\",\n  \"itens\": [\n    { \"produtoId\": \"{{tapiocaId}}\", \"quantidade\": 2 }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/pedidos"
+          }
+        },
+        {
+          "name": "T07 - Filtrar pedidos por canalPedido=TOTEM",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{clienteToken}}" }],
+            "url": "{{baseUrl}}/pedidos?canalPedido=TOTEM"
+          }
+        },
+        {
+          "name": "T08 - Processar pagamento mock APROVADO",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{clienteToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pedidoId\": \"{{pedidoId}}\",\n  \"resultado\": \"APROVADO\"\n}"
+            },
+            "url": "{{baseUrl}}/pagamentos/processar"
+          }
+        },
+        {
+          "name": "T09 - Atualizar status do pedido como GERENTE",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{gerenteToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"EM_PREPARO\"\n}"
+            },
+            "url": "{{baseUrl}}/pedidos/{{pedidoId}}/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Cenarios Negativos (Erros e Seguranca)",
+      "item": [
+        {
+          "name": "T10 - Listar pedidos sem token (401)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/pedidos"
+          }
+        },
+        {
+          "name": "T11 - Cliente tentando mudar status do pedido (403)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{clienteToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PRONTO\"\n}"
+            },
+            "url": "{{baseUrl}}/pedidos/{{pedidoId}}/status"
+          }
+        },
+        {
+          "name": "T12 - Criar pedido sem canalPedido (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{clienteToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": \"{{unidadeId}}\",\n  \"itens\": [\n    { \"produtoId\": \"{{tapiocaId}}\", \"quantidade\": 1 }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/pedidos"
+          }
+        },
+        {
+          "name": "T13 - Criar pedido com produto inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{clienteToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": \"{{unidadeId}}\",\n  \"canalPedido\": \"APP\",\n  \"itens\": [\n    { \"produtoId\": \"id-inexistente-123\", \"quantidade\": 1 }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/pedidos"
+          }
+        },
+        {
+          "name": "T14 - Criar pedido com estoque insuficiente (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{clienteToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unidadeId\": \"{{unidadeId}}\",\n  \"canalPedido\": \"APP\",\n  \"itens\": [\n    { \"produtoId\": \"{{tapiocaId}}\", \"quantidade\": 999 }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/pedidos"
+          }
+        },
+        {
+          "name": "T15 - Processar pagamento mock RECUSADO (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{clienteToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pedidoId\": \"{{pedidoId}}\",\n  \"resultado\": \"RECUSADO\"\n}"
+            },
+            "url": "{{baseUrl}}/pagamentos/processar"
+          }
+        }
+      ]
+    }
+  ]
+}
