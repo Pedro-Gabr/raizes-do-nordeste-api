@@ -24,7 +24,7 @@ async function processarPagamentoMock({ pedidoId, resultado, usuarioId, perfil }
         };
     }
 
-        if (perfil === 'CLIENTE' && pedido.clienteId !== usuarioId) {
+    if (perfil === 'CLIENTE' && pedido.clienteId !== usuarioId) {
         throw {
             status: 403,
             error: 'SEM_PERMISSAO',

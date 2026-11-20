@@ -23,7 +23,7 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
         };
     }
 
-        const repetidos = itens
+    const repetidos = itens
         .map((item) => item.produtoId)
         .filter((id, i, lista) => lista.indexOf(id) !== i);
 
