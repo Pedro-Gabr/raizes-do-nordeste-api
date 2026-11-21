@@ -18,6 +18,6 @@ A API gerencia o fluxo de pedidos multicanal, controle de estoque por unidade, p
 
 1. **Clonar o repositório e instalar as dependências:**
    ```bash
-   git clone [https://github.com/Pedro-Gabr/raizes-do-nordeste-api.git](https://github.com/Pedro-Gabr/raizes-do-nordeste-api.git)
+   git clone https://github.com/Pedro-Gabr/raizes-do-nordeste-api.git
    cd raizes-do-nordeste-api
    npm install
