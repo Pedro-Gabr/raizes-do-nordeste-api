@@ -33,7 +33,7 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
     }
 
     const repetidos = itens
-        .map((item) => item.produtoId)
+        .map((item) => item && item.produtoId)
         .filter((id, i, lista) => lista.indexOf(id) !== i);
 
     if (repetidos.length > 0) {
@@ -61,12 +61,12 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
         for (let i = 0; i < itens.length; i++) {
             const item = itens[i];
 
-            if (!item.produtoId || !item.quantidade || item.quantidade <= 0) {
+            if (!item || !item.produtoId || !Number.isInteger(item.quantidade) || item.quantidade <= 0) {
                 throw {
                     status: 422,
                     error: 'ITEM_INVALIDO',
                     message: 'Produto e quantidade maior que zero são obrigatórios.',
-                    details: [{ field: `itens[${i}]`, issue: 'Verifique produtoId e quantidade' }]
+                    details: [{ field: `itens[${i}]`, issue: 'Verifique produtoId e quantidade (número inteiro maior que zero)' }]
                 };
             }
 
@@ -159,6 +159,15 @@ async function listarPedidos({ canalPedido, status, usuario }) {
             error: 'CANAL_INVALIDO',
             message: 'Filtro canalPedido inválido.',
             details: [{ field: 'canalPedido', issue: `Aceitos: ${canaisPermitidos.join(', ')}` }]
+        };
+    }
+
+    if (status && !statusPermitidos.includes(status)) {
+        throw {
+            status: 422,
+            error: 'STATUS_INVALIDO',
+            message: 'Filtro status inválido.',
+            details: [{ field: 'status', issue: `Aceitos: ${statusPermitidos.join(', ')}` }]
         };
     }
 
