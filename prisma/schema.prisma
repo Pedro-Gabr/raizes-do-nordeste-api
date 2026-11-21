@@ -8,16 +8,19 @@ datasource db {
 }
 
 model Usuario {
-  id                String         @id @default(uuid())
+  id                String            @id @default(uuid())
   nome              String
-  email             String         @unique
+  email             String            @unique
   senha             String
-  role              String         @default("CLIENTE")
-  pontos            Int            @default(0)
-  consentimentoLGPD Boolean        @default(false)
-  criadoEm          DateTime       @default(now())
+  role              String            @default("CLIENTE")
+  pontos            Int               @default(0)
+  consentimentoLGPD Boolean           @default(false)
+  consentimentoEm   DateTime?
+  anonimizadoEm     DateTime?
+  criadoEm          DateTime          @default(now())
   pedidos           Pedido[]
   logs              LogAuditoria[]
+  movimentosPontos  MovimentoPontos[]
 }
 
 model Unidade {
@@ -50,18 +53,24 @@ model Estoque {
 }
 
 model Pedido {
-  id             String       @id @default(uuid())
-  clienteId      String
-  unidadeId      String
-  canalPedido    String
-  formaPagamento String       @default("MOCK")
-  status         String       @default("AGUARDANDO_PAGAMENTO")
-  total          Float
-  criadoEm       DateTime     @default(now())
-  cliente        Usuario      @relation(fields: [clienteId], references: [id])
-  unidade        Unidade      @relation(fields: [unidadeId], references: [id])
-  itens          ItemPedido[]
-  pagamento      Pagamento?
+  id               String            @id @default(uuid())
+  clienteId        String
+  unidadeId        String
+  canalPedido      String
+  formaPagamento   String            @default("MOCK")
+  status           String            @default("AGUARDANDO_PAGAMENTO")
+  total            Float
+  pontosUsados     Int               @default(0)
+  desconto         Float             @default(0)
+  criadoEm         DateTime          @default(now())
+  cliente          Usuario           @relation(fields: [clienteId], references: [id])
+  unidade          Unidade           @relation(fields: [unidadeId], references: [id])
+  itens            ItemPedido[]
+  pagamento        Pagamento?
+  movimentosPontos MovimentoPontos[]
+
+  @@index([clienteId])
+  @@index([canalPedido, status])
 }
 
 model ItemPedido {
@@ -81,6 +90,20 @@ model Pagamento {
   transacaoId String?
   valor       Float
   pedido      Pedido  @relation(fields: [pedidoId], references: [id])
+}
+
+// historico da fidelidade: ACUMULO (+), RESGATE (-) e ESTORNO (+)
+model MovimentoPontos {
+  id        String   @id @default(uuid())
+  usuarioId String
+  pedidoId  String?
+  tipo      String
+  pontos    Int
+  criadoEm  DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  pedido    Pedido?  @relation(fields: [pedidoId], references: [id])
+
+  @@index([usuarioId])
 }
 
 model LogAuditoria {
