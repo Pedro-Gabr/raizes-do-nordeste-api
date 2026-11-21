@@ -10,8 +10,18 @@ async function cadastro(req, res) {
         return enviarErro(res, req, 422, 'CAMPOS_OBRIGATORIOS', 'Nome, e-mail e senha são obrigatórios.');
     }
 
+    const emailLimpo = String(email).trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpo)) {
+        return enviarErro(res, req, 422, 'EMAIL_INVALIDO', 'Informe um e-mail válido.');
+    }
+
+    if (String(senha).length < 6) {
+        return enviarErro(res, req, 422, 'SENHA_FRACA', 'A senha precisa ter pelo menos 6 caracteres.');
+    }
+
     try {
-        const jaExiste = await prisma.usuario.findUnique({ where: { email } });
+        const jaExiste = await prisma.usuario.findUnique({ where: { email: emailLimpo } });
         if (jaExiste) {
             return enviarErro(res, req, 409, 'EMAIL_DUPLICADO', 'Este e-mail já está cadastrado.');
         }
@@ -21,7 +31,7 @@ async function cadastro(req, res) {
         const usuario = await prisma.usuario.create({
             data: {
                 nome,
-                email,
+                email: emailLimpo,
                 senha: senhaHash,
                 role: 'CLIENTE',
                 consentimentoLGPD: Boolean(consentimentoLGPD)
@@ -48,7 +58,9 @@ async function login(req, res) {
     }
 
     try {
-        const usuario = await prisma.usuario.findUnique({ where: { email } });
+        const usuario = await prisma.usuario.findUnique({
+            where: { email: String(email).trim().toLowerCase() }
+        });
         if (!usuario) {
             return enviarErro(res, req, 401, 'CREDENCIAIS_INVALIDAS', 'E-mail ou senha inválidos.');
         }
