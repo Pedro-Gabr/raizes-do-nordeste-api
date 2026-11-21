@@ -21,3 +21,14 @@ A API gerencia o fluxo de pedidos multicanal, controle de estoque por unidade, p
    git clone https://github.com/Pedro-Gabr/raizes-do-nordeste-api.git
    cd raizes-do-nordeste-api
    npm install
+
+## Modelo do banco de dados
+
+O banco de dados utiliza SQLite com Prisma ORM. O diagrama entidade-relacionamento (DER) apresenta as tabelas do sistema, seus principais campos e as relações entre elas.
+
+O modelo inclui usuários, unidades, produtos, estoque, pedidos, pagamentos, movimentações de pontos e registros de auditoria.
+
+O diagrama está disponível nos seguintes arquivos:
+
+- [Visualizar DER em PDF](docs/DER-raizes-do-nordeste.pdf)
+- [Abrir arquivo editável do DER](docs/DER-raizes-do-nordeste.drawio)
