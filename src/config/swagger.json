@@ -29,7 +29,11 @@
     },
     {
       "name": "Fidelidade",
-      "description": "Consulta de pontos"
+      "description": "Saldo, histórico e resgate de pontos"
+    },
+    {
+      "name": "Auditoria",
+      "description": "Consulta dos registros de auditoria (somente gerente)."
     }
   ],
   "components": {
@@ -1920,6 +1924,179 @@
                   "details": [],
                   "timestamp": "2026-11-21T12:00:00.000Z",
                   "path": "/pagamentos/processar"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auditoria": {
+      "get": {
+        "tags": [
+          "Auditoria"
+        ],
+        "summary": "Consultar os registros de auditoria",
+        "description": "Disponível somente para o GERENTE. Lista os eventos registrados pela API (cadastro, pedidos, pagamentos, mudanças de status, entrada de estoque e ações de LGPD), do mais recente para o mais antigo, com paginação e filtros opcionais por acao, entidade e usuarioId.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "acao",
+            "in": "query",
+            "description": "Filtra pela ação registrada.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "CRIAR_PEDIDO"
+          },
+          {
+            "name": "entidade",
+            "in": "query",
+            "description": "Filtra pela entidade afetada (Pedido, Pagamento, Estoque, Usuario).",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Pedido"
+          },
+          {
+            "name": "usuarioId",
+            "in": "query",
+            "description": "Filtra pelo usuário que executou a ação.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "11111111-1111-4111-8111-111111111111"
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "description": "Número da página (começa em 1).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "description": "Itens por página (máximo 50).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registros de auditoria",
+            "content": {
+              "application/json": {
+                "example": {
+                  "dados": [
+                    {
+                      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                      "usuarioId": "11111111-1111-4111-8111-111111111111",
+                      "acao": "CRIAR_PEDIDO",
+                      "entidade": "Pedido",
+                      "entidadeId": "22222222-2222-4222-8222-222222222222",
+                      "detalhes": "Canal: APP | Total: 31 | Pontos usados: 0",
+                      "criadoEm": "2026-11-21T12:00:00.000Z"
+                    }
+                  ],
+                  "pagina": 1,
+                  "limite": 10,
+                  "total": 1,
+                  "totalPaginas": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token não informado.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "NAO_AUTENTICADO",
+                  "message": "Token não informado.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/auditoria"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem acesso.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "SEM_PERMISSAO",
+                  "message": "Seu perfil não tem acesso a este recurso.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/auditoria"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Filtro ou paginação inválidos.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "filtroInvalido": {
+                    "summary": "Filtro repetido ou vazio",
+                    "value": {
+                      "error": "FILTRO_INVALIDO",
+                      "message": "Filtro de auditoria inválido.",
+                      "details": [
+                        {
+                          "field": "acao",
+                          "issue": "Informe um único valor de texto"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auditoria?acao="
+                    }
+                  },
+                  "paginacaoInvalida": {
+                    "summary": "pagina ou limite inválidos",
+                    "value": {
+                      "error": "PAGINACAO_INVALIDA",
+                      "message": "Parâmetros de paginação inválidos.",
+                      "details": [
+                        {
+                          "field": "pagina",
+                          "issue": "Deve ser um número inteiro maior ou igual a 1."
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auditoria?pagina=0"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao consultar auditoria.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ERRO_INTERNO",
+                  "message": "Erro ao consultar auditoria.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/auditoria"
                 }
               }
             }
