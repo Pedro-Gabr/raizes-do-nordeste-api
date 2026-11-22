@@ -236,3 +236,8 @@ As rotas recebem as requisições, os controllers fazem a ponte de entrada e sa�
 - O pagamento é simulado e não conversa com nenhum provedor real.
 - Não escrevi testes automatizados em código (Jest/Vitest); toda a validação está na coleção do Postman e nos testes manuais.
 - Não existe rotina agendada para expirar dados antigos automaticamente; a exclusão ocorre apenas sob demanda, quando o cliente aciona a anonimização.
+- Não dá para desativar um produto pela API: só cadastrar e consultar.
+- O gerente enxerga os pedidos e a auditoria de todas as unidades, porque o banco não liga o usuário a uma unidade específica.
+- Os valores em dinheiro são guardados como decimal (`Float`) e arredondados em 2 casas. Num sistema real, o melhor seria guardar em centavos.
+- Não há trava para duas requisições simultâneas sobre o mesmo pedido, como cancelar ou pagar duas vezes no mesmo instante. No uso normal isso não acontece.
+- O limite de tentativas do login fica na memória do servidor: zera quando ele reinicia e não é compartilhado entre várias instâncias.
