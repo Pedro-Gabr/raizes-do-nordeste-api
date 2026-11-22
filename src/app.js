@@ -8,6 +8,7 @@ const lojaRoutes = require('./routes/lojaRoutes');
 const pedidoRoutes = require('./routes/pedidoRoutes');
 const pagamentoRoutes = require('./routes/pagamentoRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
+const lgpdRoutes = require('./routes/lgpdRoutes');
 const { enviarErro } = require('./utils/erroPadrao');
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/', lojaRoutes);
 app.use('/pedidos', pedidoRoutes);
 app.use('/pagamentos', pagamentoRoutes);
 app.use('/auditoria', auditoriaRoutes);
+app.use('/lgpd', lgpdRoutes);
 
 app.use((req, res) => {
     return enviarErro(res, req, 404, 'ROTA_NAO_ENCONTRADA', 'Rota não encontrada.');
