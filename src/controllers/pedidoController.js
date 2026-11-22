@@ -1,5 +1,6 @@
 const pedidoService = require('../services/pedidoService');
 const { enviarErro } = require('../utils/erroPadrao');
+const { lerPaginacao } = require('../utils/paginacao');
 
 async function criar(req, res) {
     try {
@@ -30,7 +31,8 @@ async function listar(req, res) {
         const pedidos = await pedidoService.listarPedidos({
             canalPedido,
             status,
-            usuario: req.usuario
+            usuario: req.usuario,
+            paginacao: lerPaginacao(req.query)
         });
         return res.json(pedidos);
     } catch (err) {

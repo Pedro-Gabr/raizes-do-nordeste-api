@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const { registrarLog } = require('./auditoriaService');
+const { montarPagina } = require('../utils/paginacao');
 
 const canaisPermitidos = ['APP', 'TOTEM', 'BALCAO', 'PICKUP', 'WEB'];
 const statusPermitidos = ['AGUARDANDO_PAGAMENTO', 'PAGO', 'EM_PREPARO', 'PRONTO', 'ENTREGUE', 'CANCELADO'];
@@ -152,7 +153,7 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
     });
 }
 
-async function listarPedidos({ canalPedido, status, usuario }) {
+async function listarPedidos({ canalPedido, status, usuario, paginacao }) {
     if (canalPedido && !canaisPermitidos.includes(canalPedido)) {
         throw {
             status: 422,
@@ -179,14 +180,21 @@ async function listarPedidos({ canalPedido, status, usuario }) {
         filtro.clienteId = usuario.id;
     }
 
-    return prisma.pedido.findMany({
-        where: filtro,
-        include: {
-            itens: true,
-            pagamento: true
-        },
-        orderBy: { criadoEm: 'desc' }
-    });
+    const [total, pedidos] = await Promise.all([
+        prisma.pedido.count({ where: filtro }),
+        prisma.pedido.findMany({
+            where: filtro,
+            include: {
+                itens: true,
+                pagamento: true
+            },
+            orderBy: { criadoEm: 'desc' },
+            skip: paginacao.skip,
+            take: paginacao.limite
+        })
+    ]);
+
+    return montarPagina(pedidos, total, paginacao);
 }
 
 async function atualizarStatusPedido(id, status, usuarioId) {

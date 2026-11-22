@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const { registrarLog } = require('./auditoriaService');
+const { montarPagina } = require('../utils/paginacao');
 
 async function registrarEntrada({ unidadeId, produtoId, quantidade, usuarioId }) {
     const faltando = [];
@@ -64,7 +65,7 @@ async function registrarEntrada({ unidadeId, produtoId, quantidade, usuarioId })
     return estoque;
 }
 
-async function listarCardapio(unidadeId) {
+async function listarCardapio(unidadeId, paginacao) {
     const unidade = await prisma.unidade.findUnique({ where: { id: unidadeId } });
     if (!unidade) {
         throw {
@@ -75,22 +76,31 @@ async function listarCardapio(unidadeId) {
     }
 
     // só entra no cardápio o que está ativo e tem saldo nessa unidade
-    const estoques = await prisma.estoque.findMany({
-        where: {
-            unidadeId,
-            quantidade: { gt: 0 },
-            produto: { disponivel: true }
-        },
-        include: { produto: true },
-        orderBy: { produto: { nome: 'asc' } }
-    });
+    const where = {
+        unidadeId,
+        quantidade: { gt: 0 },
+        produto: { disponivel: true }
+    };
 
-    return estoques.map((item) => ({
+    const [total, estoques] = await Promise.all([
+        prisma.estoque.count({ where }),
+        prisma.estoque.findMany({
+            where,
+            include: { produto: true },
+            orderBy: { produto: { nome: 'asc' } },
+            skip: paginacao.skip,
+            take: paginacao.limite
+        })
+    ]);
+
+    const itens = estoques.map((item) => ({
         id: item.produto.id,
         nome: item.produto.nome,
         preco: item.produto.preco,
         descricao: item.produto.descricao
     }));
+
+    return montarPagina(itens, total, paginacao);
 }
 
 module.exports = { registrarEntrada, listarCardapio };

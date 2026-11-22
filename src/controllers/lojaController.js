@@ -1,6 +1,7 @@
 const prisma = require('../config/prisma');
 const estoqueService = require('../services/estoqueService');
 const { enviarErro } = require('../utils/erroPadrao');
+const { lerPaginacao, montarPagina } = require('../utils/paginacao');
 
 async function listarUnidades(req, res) {
     try {
@@ -13,11 +14,24 @@ async function listarUnidades(req, res) {
 
 async function listarProdutos(req, res) {
     try {
-        const produtos = await prisma.produto.findMany({
-            where: { disponivel: true }
-        });
-        return res.json(produtos);
+        const paginacao = lerPaginacao(req.query);
+        const where = { disponivel: true };
+
+        const [total, produtos] = await Promise.all([
+            prisma.produto.count({ where }),
+            prisma.produto.findMany({
+                where,
+                orderBy: { nome: 'asc' },
+                skip: paginacao.skip,
+                take: paginacao.limite
+            })
+        ]);
+
+        return res.json(montarPagina(produtos, total, paginacao));
     } catch (err) {
+        if (err.status) {
+            return enviarErro(res, req, err.status, err.error, err.message, err.details);
+        }
         return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao listar produtos.');
     }
 }
@@ -55,7 +69,7 @@ async function consultarEstoque(req, res) {
 
 async function consultarCardapio(req, res) {
     try {
-        const cardapio = await estoqueService.listarCardapio(req.params.id);
+        const cardapio = await estoqueService.listarCardapio(req.params.id, lerPaginacao(req.query));
         return res.json(cardapio);
     } catch (err) {
         if (err.status) {
