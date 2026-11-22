@@ -8,6 +8,7 @@ router.get('/unidades', lojaController.listarUnidades);
 router.get('/produtos', lojaController.listarProdutos);
 router.post('/produtos', verificarToken, permitirPerfis('GERENTE'), lojaController.criarProduto);
 router.get('/estoque/:unidadeId', verificarToken, lojaController.consultarEstoque);
+router.post('/estoque', verificarToken, permitirPerfis('GERENTE'), lojaController.registrarEntradaEstoque);
 router.get('/fidelidade/saldo', verificarToken, lojaController.saldoFidelidade);
 
 module.exports = router;

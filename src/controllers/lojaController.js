@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const estoqueService = require('../services/estoqueService');
 const { enviarErro } = require('../utils/erroPadrao');
 
 async function listarUnidades(req, res) {
@@ -52,6 +53,30 @@ async function consultarEstoque(req, res) {
     }
 }
 
+async function registrarEntradaEstoque(req, res) {
+    const { unidadeId, produtoId, quantidade } = req.body || {};
+
+    try {
+        const estoque = await estoqueService.registrarEntrada({
+            unidadeId,
+            produtoId,
+            quantidade,
+            usuarioId: req.usuario.id
+        });
+
+        return res.status(201).json({
+            msg: 'Entrada de estoque registrada.',
+            estoque
+        });
+    } catch (err) {
+        if (err.status) {
+            return enviarErro(res, req, err.status, err.error, err.message, err.details);
+        }
+        console.error('Erro na entrada de estoque:', err);
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao registrar entrada de estoque.');
+    }
+}
+
 async function saldoFidelidade(req, res) {
     try {
         const usuario = await prisma.usuario.findUnique({
@@ -69,5 +94,6 @@ module.exports = {
     listarProdutos,
     criarProduto,
     consultarEstoque,
+    registrarEntradaEstoque,
     saldoFidelidade
 };
