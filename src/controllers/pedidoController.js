@@ -59,4 +59,20 @@ async function atualizarStatus(req, res) {
     }
 }
 
-module.exports = { criar, listar, atualizarStatus };
+async function cancelar(req, res) {
+    try {
+        const pedido = await pedidoService.cancelarPedido(
+            req.params.id,
+            req.usuario.id,
+            req.usuario.role
+        );
+        return res.json({ msg: 'Pedido cancelado.', pedido });
+    } catch (err) {
+        if (err.status) {
+            return enviarErro(res, req, err.status, err.error, err.message, err.details);
+        }
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao cancelar pedido.');
+    }
+}
+
+module.exports = { criar, listar, atualizarStatus, cancelar };

@@ -197,7 +197,7 @@ async function listarPedidos({ canalPedido, status, usuario, paginacao }) {
     return montarPagina(pedidos, total, paginacao);
 }
 
-async function atualizarStatusPedido(id, status, usuarioId) {
+async function atualizarStatusPedido(id, status, usuarioId, perfil) {
     if (!statusPermitidos.includes(status)) {
         throw {
             status: 422,
@@ -220,6 +220,14 @@ async function atualizarStatusPedido(id, status, usuarioId) {
         };
     }
 
+    if (perfil === 'CLIENTE' && pedido.clienteId !== usuarioId) {
+        throw {
+            status: 403,
+            error: 'SEM_PERMISSAO',
+            message: 'Você só pode cancelar os seus próprios pedidos.'
+        };
+    }
+
     const proximos = transicoesPermitidas[pedido.status] || [];
     if (!proximos.includes(status)) {
         throw {
@@ -234,6 +242,16 @@ async function atualizarStatusPedido(id, status, usuarioId) {
                         : 'Este pedido já foi finalizado e não pode mais mudar.'
                 }
             ]
+        };
+    }
+
+    // o cliente só cancela até o pedido ficar pronto; depois disso só a equipe
+    if (perfil === 'CLIENTE' && pedido.status === 'PRONTO') {
+        throw {
+            status: 409,
+            error: 'PEDIDO_NAO_CANCELAVEL',
+            message: 'Este pedido já está pronto e não pode mais ser cancelado por você.',
+            details: [{ field: 'status', issue: 'Procure o atendimento da unidade.' }]
         };
     }
 
@@ -269,4 +287,8 @@ async function atualizarStatusPedido(id, status, usuarioId) {
     return atualizado;
 }
 
-module.exports = { criarPedido, listarPedidos, atualizarStatusPedido };
+async function cancelarPedido(id, usuarioId, perfil) {
+    return atualizarStatusPedido(id, 'CANCELADO', usuarioId, perfil);
+}
+
+module.exports = { criarPedido, listarPedidos, atualizarStatusPedido, cancelarPedido };

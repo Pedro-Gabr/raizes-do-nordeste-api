@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/', verificarToken, pedidoController.criar);
 router.get('/', verificarToken, pedidoController.listar);
+router.patch('/:id/cancelar', verificarToken, pedidoController.cancelar);
 router.patch(
     '/:id/status',
     verificarToken,
