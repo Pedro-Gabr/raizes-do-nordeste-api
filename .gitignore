@@ -5,3 +5,5 @@ generated/
 prisma.config.ts
 *.db
 *.db-journal
+.postman/
+postman/
