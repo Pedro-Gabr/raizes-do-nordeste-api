@@ -288,6 +288,78 @@
         }
       }
     },
+    "/unidades/{id}/cardapio": {
+      "get": {
+        "tags": [
+          "Loja"
+        ],
+        "summary": "Consultar o cardápio de uma unidade",
+        "description": "Rota pública. Lista os produtos ativos que têm saldo em estoque na unidade, em ordem alfabética. Produto sem estoque ou desativado não aparece. A listagem ainda não tem paginação.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID da unidade",
+            "example": "33333333-3333-4333-8333-333333333333"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cardápio da unidade",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "55555555-5555-4555-8555-555555555555",
+                    "nome": "Cuscuz Recheado",
+                    "preco": 12,
+                    "descricao": "Cuscuz nordestino com queijo coalho e manteiga de garrafa"
+                  },
+                  {
+                    "id": "44444444-4444-4444-8444-444444444444",
+                    "nome": "Tapioca de Carne de Sol",
+                    "preco": 15.5,
+                    "descricao": "Tapioca artesanal com carne de sol na nata"
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "Unidade informada não existe.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "UNIDADE_NAO_ENCONTRADA",
+                  "message": "Unidade informada não existe.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/unidades/33333333-3333-4333-8333-333333333333/cardapio"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao consultar cardápio.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ERRO_INTERNO",
+                  "message": "Erro ao consultar cardápio.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/unidades/33333333-3333-4333-8333-333333333333/cardapio"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/produtos": {
       "get": {
         "tags": [
@@ -438,6 +510,180 @@
                   "details": [],
                   "timestamp": "2026-11-21T12:00:00.000Z",
                   "path": "/produtos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estoque": {
+      "post": {
+        "tags": [
+          "Loja"
+        ],
+        "summary": "Registrar entrada de estoque",
+        "description": "Apenas o perfil GERENTE pode registrar entradas. A quantidade é somada ao estoque da unidade; se o produto ainda não tinha estoque nela, o estoque é criado com a quantidade informada. A ação fica registrada na auditoria.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "unidadeId": {
+                    "type": "string"
+                  },
+                  "produtoId": {
+                    "type": "string"
+                  },
+                  "quantidade": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "unidadeId",
+                  "produtoId",
+                  "quantidade"
+                ]
+              },
+              "example": {
+                "unidadeId": "33333333-3333-4333-8333-333333333333",
+                "produtoId": "44444444-4444-4444-8444-444444444444",
+                "quantidade": 20
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Entrada registrada",
+            "content": {
+              "application/json": {
+                "example": {
+                  "msg": "Entrada de estoque registrada.",
+                  "estoque": {
+                    "id": "77777777-7777-4777-8777-777777777777",
+                    "unidadeId": "33333333-3333-4333-8333-333333333333",
+                    "produtoId": "44444444-4444-4444-8444-444444444444",
+                    "quantidade": 70
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token não informado.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "NAO_AUTENTICADO",
+                  "message": "Token não informado.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/estoque"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Seu perfil não tem acesso a este recurso.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "SEM_PERMISSAO",
+                  "message": "Seu perfil não tem acesso a este recurso.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/estoque"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unidade ou produto não encontrado",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "unidade": {
+                    "summary": "Unidade inexistente",
+                    "value": {
+                      "error": "UNIDADE_NAO_ENCONTRADA",
+                      "message": "Unidade informada não existe.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque"
+                    }
+                  },
+                  "produto": {
+                    "summary": "Produto inexistente",
+                    "value": {
+                      "error": "PRODUTO_NAO_ENCONTRADO",
+                      "message": "Produto não encontrado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Dados da entrada inválidos",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "camposObrigatorios": {
+                    "summary": "Campo ausente",
+                    "value": {
+                      "error": "CAMPOS_OBRIGATORIOS",
+                      "message": "Informe a unidade e o produto da entrada de estoque.",
+                      "details": [
+                        {
+                          "field": "unidadeId",
+                          "issue": "Campo obrigatório"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque"
+                    }
+                  },
+                  "quantidadeInvalida": {
+                    "summary": "Quantidade inválida",
+                    "value": {
+                      "error": "QUANTIDADE_INVALIDA",
+                      "message": "A quantidade da entrada precisa ser um número inteiro maior que zero.",
+                      "details": [
+                        {
+                          "field": "quantidade",
+                          "issue": "Use um número inteiro maior que zero"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao registrar entrada de estoque.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ERRO_INTERNO",
+                  "message": "Erro ao registrar entrada de estoque.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/estoque"
                 }
               }
             }
