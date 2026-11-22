@@ -116,6 +116,30 @@ async function saldoFidelidade(req, res) {
     }
 }
 
+async function historicoFidelidade(req, res) {
+    try {
+        const paginacao = lerPaginacao(req.query);
+        const where = { usuarioId: req.usuario.id };
+
+        const [total, movimentos] = await Promise.all([
+            prisma.movimentoPontos.count({ where }),
+            prisma.movimentoPontos.findMany({
+                where,
+                orderBy: { criadoEm: 'desc' },
+                skip: paginacao.skip,
+                take: paginacao.limite
+            })
+        ]);
+
+        return res.json(montarPagina(movimentos, total, paginacao));
+    } catch (err) {
+        if (err.status) {
+            return enviarErro(res, req, err.status, err.error, err.message, err.details);
+        }
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao consultar histórico de pontos.');
+    }
+}
+
 module.exports = {
     listarUnidades,
     listarProdutos,
@@ -123,5 +147,6 @@ module.exports = {
     consultarEstoque,
     consultarCardapio,
     registrarEntradaEstoque,
-    saldoFidelidade
+    saldoFidelidade,
+    historicoFidelidade
 };

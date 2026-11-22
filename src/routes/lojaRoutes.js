@@ -11,5 +11,6 @@ router.post('/produtos', verificarToken, permitirPerfis('GERENTE'), lojaControll
 router.get('/estoque/:unidadeId', verificarToken, lojaController.consultarEstoque);
 router.post('/estoque', verificarToken, permitirPerfis('GERENTE'), lojaController.registrarEntradaEstoque);
 router.get('/fidelidade/saldo', verificarToken, lojaController.saldoFidelidade);
+router.get('/fidelidade/historico', verificarToken, lojaController.historicoFidelidade);
 
 module.exports = router;

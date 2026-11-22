@@ -1,6 +1,7 @@
 const prisma = require('../config/prisma');
 const { registrarLog } = require('./auditoriaService');
 const { montarPagina } = require('../utils/paginacao');
+const { calcularResgate, registrarMovimento, estornarPontosDoPedido } = require('./fidelidadeService');
 
 const canaisPermitidos = ['APP', 'TOTEM', 'BALCAO', 'PICKUP', 'WEB'];
 const statusPermitidos = ['AGUARDANDO_PAGAMENTO', 'PAGO', 'EM_PREPARO', 'PRONTO', 'ENTREGUE', 'CANCELADO'];
@@ -14,7 +15,7 @@ const transicoesPermitidas = {
     CANCELADO: []
 };
 
-async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPagamento }) {
+async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPagamento, pontosResgatar }) {
     if (!canalPedido || !canaisPermitidos.includes(canalPedido)) {
         throw {
             status: 422,
@@ -113,6 +114,15 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
             });
         }
 
+        const subtotal = Number(total.toFixed(2));
+        let pontosUsados = 0;
+        let desconto = 0;
+
+        if (pontosResgatar) {
+            const cliente = await tx.usuario.findUnique({ where: { id: clienteId } });
+            ({ pontosUsados, desconto } = calcularResgate({ pontosResgatar, subtotal, usuario: cliente }));
+        }
+
         const pedido = await tx.pedido.create({
             data: {
                 clienteId,
@@ -120,7 +130,9 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
                 canalPedido,
                 formaPagamento: formaPagamento || 'MOCK',
                 status: 'AGUARDANDO_PAGAMENTO',
-                total: Number(total.toFixed(2)),
+                total: Number((subtotal - desconto).toFixed(2)),
+                pontosUsados,
+                desconto,
                 itens: {
                     create: itensMontados.map((item) => ({
                         produtoId: item.produtoId,
@@ -139,13 +151,22 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
             });
         }
 
+        if (pontosUsados > 0) {
+            await registrarMovimento(tx, {
+                usuarioId: clienteId,
+                pedidoId: pedido.id,
+                tipo: 'RESGATE',
+                pontos: -pontosUsados
+            });
+        }
+
         await tx.logAuditoria.create({
             data: {
                 usuarioId: clienteId,
                 acao: 'CRIAR_PEDIDO',
                 entidade: 'Pedido',
                 entidadeId: pedido.id,
-                detalhes: `Canal: ${canalPedido} | Total: ${pedido.total}`
+                detalhes: `Canal: ${canalPedido} | Total: ${pedido.total} | Pontos usados: ${pontosUsados}`
             }
         });
 
@@ -257,6 +278,8 @@ async function atualizarStatusPedido(id, status, usuarioId, perfil) {
 
     const atualizado = await prisma.$transaction(async (tx) => {
         if (status === 'CANCELADO') {
+            await estornarPontosDoPedido(tx, { pedidoId: id, usuarioId: pedido.clienteId });
+
             for (const item of pedido.itens) {
                 await tx.estoque.update({
                     where: {

@@ -9,7 +9,8 @@ async function criar(req, res) {
             unidadeId: req.body.unidadeId,
             canalPedido: req.body.canalPedido,
             itens: req.body.itens,
-            formaPagamento: req.body.formaPagamento
+            formaPagamento: req.body.formaPagamento,
+            pontosResgatar: req.body.pontosResgatar
         });
 
         return res.status(201).json({

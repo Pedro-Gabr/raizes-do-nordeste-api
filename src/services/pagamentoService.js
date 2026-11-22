@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const { registrarLog } = require('./auditoriaService');
+const { registrarMovimento, estornarPontosDoPedido } = require('./fidelidadeService');
 
 async function processarPagamentoMock({ pedidoId, resultado, usuarioId, perfil }) {
     if (!pedidoId || !['APROVADO', 'RECUSADO'].includes(resultado)) {
@@ -69,16 +70,22 @@ async function processarPagamentoMock({ pedidoId, resultado, usuarioId, perfil }
 
             if (pedido.cliente.consentimentoLGPD) {
                 const pontosGanhos = Math.floor(pedido.total);
-                await tx.usuario.update({
-                    where: { id: pedido.clienteId },
-                    data: { pontos: { increment: pontosGanhos } }
-                });
+                if (pontosGanhos > 0) {
+                    await registrarMovimento(tx, {
+                        usuarioId: pedido.clienteId,
+                        pedidoId: pedido.id,
+                        tipo: 'ACUMULO',
+                        pontos: pontosGanhos
+                    });
+                }
             }
         } else {
             await tx.pedido.update({
                 where: { id: pedido.id },
                 data: { status: 'CANCELADO' }
             });
+
+            await estornarPontosDoPedido(tx, { pedidoId: pedido.id, usuarioId: pedido.clienteId });
 
             for (const item of pedido.itens) {
                 await tx.estoque.update({
