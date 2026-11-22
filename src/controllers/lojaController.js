@@ -53,6 +53,19 @@ async function consultarEstoque(req, res) {
     }
 }
 
+async function consultarCardapio(req, res) {
+    try {
+        const cardapio = await estoqueService.listarCardapio(req.params.id);
+        return res.json(cardapio);
+    } catch (err) {
+        if (err.status) {
+            return enviarErro(res, req, err.status, err.error, err.message, err.details);
+        }
+        console.error('Erro ao consultar cardápio:', err);
+        return enviarErro(res, req, 500, 'ERRO_INTERNO', 'Erro ao consultar cardápio.');
+    }
+}
+
 async function registrarEntradaEstoque(req, res) {
     const { unidadeId, produtoId, quantidade } = req.body || {};
 
@@ -94,6 +107,7 @@ module.exports = {
     listarProdutos,
     criarProduto,
     consultarEstoque,
+    consultarCardapio,
     registrarEntradaEstoque,
     saldoFidelidade
 };

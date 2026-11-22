@@ -64,4 +64,33 @@ async function registrarEntrada({ unidadeId, produtoId, quantidade, usuarioId })
     return estoque;
 }
 
-module.exports = { registrarEntrada };
+async function listarCardapio(unidadeId) {
+    const unidade = await prisma.unidade.findUnique({ where: { id: unidadeId } });
+    if (!unidade) {
+        throw {
+            status: 404,
+            error: 'UNIDADE_NAO_ENCONTRADA',
+            message: 'Unidade informada não existe.'
+        };
+    }
+
+    // só entra no cardápio o que está ativo e tem saldo nessa unidade
+    const estoques = await prisma.estoque.findMany({
+        where: {
+            unidadeId,
+            quantidade: { gt: 0 },
+            produto: { disponivel: true }
+        },
+        include: { produto: true },
+        orderBy: { produto: { nome: 'asc' } }
+    });
+
+    return estoques.map((item) => ({
+        id: item.produto.id,
+        nome: item.produto.nome,
+        preco: item.produto.preco,
+        descricao: item.produto.descricao
+    }));
+}
+
+module.exports = { registrarEntrada, listarCardapio };

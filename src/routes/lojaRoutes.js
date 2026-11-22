@@ -5,6 +5,7 @@ const { verificarToken, permitirPerfis } = require('../middlewares/auth');
 const router = express.Router();
 
 router.get('/unidades', lojaController.listarUnidades);
+router.get('/unidades/:id/cardapio', lojaController.consultarCardapio);
 router.get('/produtos', lojaController.listarProdutos);
 router.post('/produtos', verificarToken, permitirPerfis('GERENTE'), lojaController.criarProduto);
 router.get('/estoque/:unidadeId', verificarToken, lojaController.consultarEstoque);
