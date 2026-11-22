@@ -25,12 +25,21 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
         };
     }
 
-    if (!unidadeId || !Array.isArray(itens) || itens.length === 0) {
+    if (!unidadeId || typeof unidadeId !== 'string' || !Array.isArray(itens) || itens.length === 0) {
         throw {
             status: 422,
             error: 'DADOS_INVALIDOS',
             message: 'Unidade e lista de itens são obrigatórios.',
             details: [{ field: 'itens', issue: 'Envie pelo menos 1 item no pedido' }]
+        };
+    }
+
+    if (formaPagamento !== undefined && typeof formaPagamento !== 'string') {
+        throw {
+            status: 422,
+            error: 'DADOS_INVALIDOS',
+            message: 'A forma de pagamento precisa ser um texto.',
+            details: [{ field: 'formaPagamento', issue: 'Envie um texto, por exemplo PIX' }]
         };
     }
 
@@ -63,7 +72,7 @@ async function criarPedido({ clienteId, unidadeId, canalPedido, itens, formaPaga
         for (let i = 0; i < itens.length; i++) {
             const item = itens[i];
 
-            if (!item || !item.produtoId || !Number.isInteger(item.quantidade) || item.quantidade <= 0) {
+            if (!item || typeof item.produtoId !== 'string' || !item.produtoId || !Number.isInteger(item.quantidade) || item.quantidade <= 0) {
                 throw {
                     status: 422,
                     error: 'ITEM_INVALIDO',

@@ -11,6 +11,10 @@ async function cadastro(req, res) {
         return enviarErro(res, req, 422, 'CAMPOS_OBRIGATORIOS', 'Nome, e-mail e senha são obrigatórios.');
     }
 
+    if (typeof nome !== 'string' || typeof email !== 'string' || typeof senha !== 'string') {
+        return enviarErro(res, req, 422, 'DADOS_INVALIDOS', 'Nome, e-mail e senha precisam ser enviados como texto.');
+    }
+
     const emailLimpo = String(email).trim().toLowerCase();
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpo)) {
@@ -66,6 +70,10 @@ async function login(req, res) {
 
     if (!email || !senha) {
         return enviarErro(res, req, 422, 'CAMPOS_OBRIGATORIOS', 'Informe e-mail e senha.');
+    }
+
+    if (typeof email !== 'string' || typeof senha !== 'string') {
+        return enviarErro(res, req, 422, 'DADOS_INVALIDOS', 'E-mail e senha precisam ser enviados como texto.');
     }
 
     try {

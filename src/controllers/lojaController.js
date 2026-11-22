@@ -39,7 +39,7 @@ async function listarProdutos(req, res) {
 async function criarProduto(req, res) {
     const { nome, preco, descricao } = req.body;
 
-    if (!nome || typeof preco !== 'number' || preco <= 0) {
+    if (!nome || typeof nome !== 'string' || typeof preco !== 'number' || preco <= 0 || (descricao && typeof descricao !== 'string')) {
         return enviarErro(res, req, 422, 'DADOS_INVALIDOS', 'Nome e preço positivo são obrigatórios.');
     }
 

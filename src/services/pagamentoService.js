@@ -3,7 +3,7 @@ const { registrarLog } = require('./auditoriaService');
 const { registrarMovimento, estornarPontosDoPedido } = require('./fidelidadeService');
 
 async function processarPagamentoMock({ pedidoId, resultado, usuarioId, perfil }) {
-    if (!pedidoId || !['APROVADO', 'RECUSADO'].includes(resultado)) {
+    if (!pedidoId || typeof pedidoId !== 'string' || !['APROVADO', 'RECUSADO'].includes(resultado)) {
         throw {
             status: 422,
             error: 'DADOS_PAGAMENTO_INVALIDOS',
