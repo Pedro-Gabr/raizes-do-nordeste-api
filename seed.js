@@ -15,7 +15,8 @@ async function popularBanco() {
                 email: 'pedro@teste.com',
                 senha: senhaHash,
                 role: 'CLIENTE',
-                consentimentoLGPD: true
+                consentimentoLGPD: true,
+                consentimentoEm: new Date()
             }
         });
 
@@ -27,7 +28,8 @@ async function popularBanco() {
                 email: 'gerente@raizes.com',
                 senha: senhaHash,
                 role: 'GERENTE',
-                consentimentoLGPD: true
+                consentimentoLGPD: true,
+                consentimentoEm: new Date()
             }
         });
 

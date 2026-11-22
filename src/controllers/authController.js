@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const prisma = require('../config/prisma');
 const { enviarErro } = require('../utils/erroPadrao');
+const { registrarLog } = require('../services/auditoriaService');
 
 async function cadastro(req, res) {
     const { nome, email, senha, consentimentoLGPD } = req.body;
@@ -27,6 +28,7 @@ async function cadastro(req, res) {
         }
 
         const senhaHash = await bcrypt.hash(senha, 10);
+        const aceitouTermos = consentimentoLGPD === true;
 
         const usuario = await prisma.usuario.create({
             data: {
@@ -34,8 +36,17 @@ async function cadastro(req, res) {
                 email: emailLimpo,
                 senha: senhaHash,
                 role: 'CLIENTE',
-                consentimentoLGPD: Boolean(consentimentoLGPD)
+                consentimentoLGPD: aceitouTermos,
+                consentimentoEm: aceitouTermos ? new Date() : null
             }
+        });
+
+        await registrarLog({
+            usuarioId: usuario.id,
+            acao: 'CADASTRO_USUARIO',
+            entidade: 'Usuario',
+            entidadeId: usuario.id,
+            detalhes: `Consentimento LGPD: ${aceitouTermos ? 'aceito' : 'não aceito'}`
         });
 
         delete usuario.senha;
