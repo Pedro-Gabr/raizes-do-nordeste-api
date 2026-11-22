@@ -49,7 +49,7 @@
           "Autenticação"
         ],
         "summary": "Cadastrar cliente",
-        "description": "O cadastro público sempre cria a conta com perfil CLIENTE, mesmo se outro perfil for enviado no corpo da requisição. O consentimento é registrado como booleano.",
+        "description": "O cadastro público sempre cria a conta com perfil CLIENTE, mesmo se outro perfil for enviado no corpo da requisição. O consentimento LGPD só vale quando consentimentoLGPD é o booleano true; nesse caso a data do aceite fica registrada em consentimentoEm. Sem consentimento, a conta funciona normalmente, mas não acumula nem resgata pontos.",
         "requestBody": {
           "required": true,
           "content": {
@@ -873,7 +873,7 @@
           "Fidelidade"
         ],
         "summary": "Consultar saldo de pontos do usuário autenticado",
-        "description": "No momento, esta rota consulta o saldo, mas não retorna histórico de movimentações nem faz resgate.",
+        "description": "Consulta o saldo de pontos. O histórico de movimentações está em /fidelidade/historico e o resgate é feito ao criar o pedido (campo pontosResgatar).",
         "security": [
           {
             "bearerAuth": []
@@ -924,13 +924,132 @@
         }
       }
     },
+    "/fidelidade/historico": {
+      "get": {
+        "tags": [
+          "Fidelidade"
+        ],
+        "summary": "Consultar o histórico de pontos do usuário autenticado",
+        "description": "Lista as movimentações de pontos do usuário, da mais recente para a mais antiga, com paginação. Tipos: ACUMULO (pontos ganhos em pedido pago), RESGATE (pontos usados como desconto, valor negativo) e ESTORNO (devolução ou retirada de pontos por cancelamento ou pagamento recusado).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pagina",
+            "in": "query",
+            "description": "Número da página (começa em 1).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "description": "Itens por página (máximo 50).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Histórico de pontos",
+            "content": {
+              "application/json": {
+                "example": {
+                  "dados": [
+                    {
+                      "id": "77777777-7777-4777-8777-777777777777",
+                      "usuarioId": "11111111-1111-4111-8111-111111111111",
+                      "pedidoId": "22222222-2222-4222-8222-222222222222",
+                      "tipo": "ACUMULO",
+                      "pontos": 31,
+                      "criadoEm": "2026-11-21T12:00:00.000Z"
+                    },
+                    {
+                      "id": "88888888-8888-4888-8888-888888888888",
+                      "usuarioId": "11111111-1111-4111-8111-111111111111",
+                      "pedidoId": "99999999-9999-4999-8999-999999999999",
+                      "tipo": "RESGATE",
+                      "pontos": -100,
+                      "criadoEm": "2026-11-20T12:00:00.000Z"
+                    }
+                  ],
+                  "pagina": 1,
+                  "limite": 10,
+                  "total": 2,
+                  "totalPaginas": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token não informado.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "NAO_AUTENTICADO",
+                  "message": "Token não informado.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/fidelidade/historico"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Parâmetros de paginação inválidos.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "PAGINACAO_INVALIDA",
+                  "message": "Parâmetros de paginação inválidos.",
+                  "details": [
+                    {
+                      "field": "pagina",
+                      "issue": "Deve ser um número inteiro maior ou igual a 1."
+                    }
+                  ],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/fidelidade/historico?pagina=0"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao consultar histórico de pontos.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ERRO_INTERNO",
+                  "message": "Erro ao consultar histórico de pontos.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/fidelidade/historico"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/pedidos": {
       "post": {
         "tags": [
           "Pedidos"
         ],
         "summary": "Criar pedido",
-        "description": "Exige JWT e canalPedido válido. O pedido é criado em AGUARDANDO_PAGAMENTO. Valida estoque e recusa produtos duplicados entre os itens.",
+        "description": "Exige JWT e canalPedido válido. O pedido é criado em AGUARDANDO_PAGAMENTO. Valida estoque e recusa produtos duplicados entre os itens. Opcionalmente, o cliente com consentimento pode usar pontosResgatar: cada 10 pontos valem R$ 1,00 de desconto, limitado a 50% do valor dos itens. O total do pedido já considera o desconto.",
         "security": [
           {
             "bearerAuth": []
@@ -978,6 +1097,12 @@
                         "quantidade"
                       ]
                     }
+                  },
+                  "pontosResgatar": {
+                    "type": "integer",
+                    "minimum": 10,
+                    "multipleOf": 10,
+                    "description": "Pontos de fidelidade a resgatar como desconto (múltiplos de 10)."
                   }
                 },
                 "required": [
@@ -1046,6 +1171,20 @@
               }
             }
           },
+          "403": {
+            "description": "Resgate de pontos sem consentimento para o programa de fidelidade.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "CONSENTIMENTO_NECESSARIO",
+                  "message": "O resgate de pontos exige consentimento para o programa de fidelidade.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/pedidos"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Unidade informada não existe.",
             "content": {
@@ -1080,20 +1219,70 @@
             }
           },
           "422": {
-            "description": "O mesmo produto aparece mais de uma vez no pedido.",
+            "description": "Dados do pedido ou do resgate inválidos.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "ITEM_DUPLICADO",
-                  "message": "O mesmo produto aparece mais de uma vez no pedido.",
-                  "details": [
-                    {
-                      "field": "itens",
-                      "issue": "Envie um único item por produto, somando as quantidades"
+                "examples": {
+                  "itemDuplicado": {
+                    "summary": "Mesmo produto repetido nos itens",
+                    "value": {
+                      "error": "ITEM_DUPLICADO",
+                      "message": "O mesmo produto aparece mais de uma vez no pedido.",
+                      "details": [
+                        {
+                          "field": "itens",
+                          "issue": "Envie um único item por produto, somando as quantidades"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
                     }
-                  ],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/pedidos"
+                  },
+                  "pontosInvalidos": {
+                    "summary": "pontosResgatar que não é múltiplo de 10",
+                    "value": {
+                      "error": "PONTOS_INVALIDOS",
+                      "message": "Quantidade de pontos inválida para resgate.",
+                      "details": [
+                        {
+                          "field": "pontosResgatar",
+                          "issue": "Informe um número inteiro múltiplo de 10"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  },
+                  "pontosInsuficientes": {
+                    "summary": "Saldo menor que o resgate pedido",
+                    "value": {
+                      "error": "PONTOS_INSUFICIENTES",
+                      "message": "Saldo de pontos insuficiente.",
+                      "details": [
+                        {
+                          "field": "pontosResgatar",
+                          "issue": "Saldo atual: 50"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  },
+                  "descontoAcimaDoLimite": {
+                    "summary": "Desconto passa de 50% do pedido",
+                    "value": {
+                      "error": "DESCONTO_ACIMA_DO_LIMITE",
+                      "message": "O desconto por pontos não pode passar de 50% do valor do pedido.",
+                      "details": [
+                        {
+                          "field": "pontosResgatar",
+                          "issue": "Máximo para este pedido: 150 pontos"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  }
                 }
               }
             }
@@ -1449,7 +1638,7 @@
           "Pedidos"
         ],
         "summary": "Cancelar pedido",
-        "description": "O cliente cancela os próprios pedidos até o status EM_PREPARO; depois que o pedido fica PRONTO, só a equipe (ATENDENTE, COZINHA ou GERENTE) cancela, e a equipe pode cancelar pedidos de qualquer cliente. As quantidades dos itens voltam ao estoque. Pedidos ENTREGUE ou já CANCELADO não podem ser cancelados.",
+        "description": "O cliente cancela os próprios pedidos até o status EM_PREPARO; depois que o pedido fica PRONTO, só a equipe (ATENDENTE, COZINHA ou GERENTE) cancela, e a equipe pode cancelar pedidos de qualquer cliente. As quantidades dos itens voltam ao estoque. Pedidos ENTREGUE ou já CANCELADO não podem ser cancelados. Os pontos usados no pedido voltam para o saldo e os pontos que ele gerou são retirados (estorno).",
         "security": [
           {
             "bearerAuth": []
@@ -1594,7 +1783,7 @@
           "Pagamentos"
         ],
         "summary": "Simular pagamento de um pedido",
-        "description": "Exige JWT. Um CLIENTE só pode pagar os próprios pedidos. Aceita APROVADO ou RECUSADO. Quando recusado, retorna HTTP 422 com msg e dados do pagamento, diferente do formato de erro padrão.",
+        "description": "Exige JWT. Um CLIENTE só pode pagar os próprios pedidos. Aceita APROVADO ou RECUSADO. Quando recusado, retorna HTTP 422 com msg e dados do pagamento, diferente do formato de erro padrão. Quando aprovado, o cliente com consentimento ganha 1 ponto a cada R$ 1,00 pago (valor já com desconto). Quando recusado, o pedido é cancelado, o estoque volta e os pontos usados no resgate são devolvidos.",
         "security": [
           {
             "bearerAuth": []
