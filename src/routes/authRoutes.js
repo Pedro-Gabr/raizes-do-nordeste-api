@@ -7,4 +7,4 @@ const router = express.Router();
 router.post('/cadastro', limitadorAuth, authController.cadastro);
 router.post('/login', limitadorAuth, authController.login);
 
-module.exports = router;    
+module.exports = router;

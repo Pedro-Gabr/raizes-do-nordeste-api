@@ -12,4 +12,4 @@ async function registrarLog({ usuarioId, acao, entidade, entidadeId, detalhes })
     });
 }
 
-module.exports = { registrarLog }; 
+module.exports = { registrarLog };

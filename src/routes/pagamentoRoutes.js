@@ -6,4 +6,4 @@ const router = express.Router();
 
 router.post('/processar', verificarToken, pagamentoController.processar);
 
-module.exports = router;    
+module.exports = router;

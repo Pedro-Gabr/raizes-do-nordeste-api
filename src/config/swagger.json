@@ -109,7 +109,7 @@
                     "role": "CLIENTE",
                     "pontos": 0,
                     "consentimentoLGPD": true,
-                    "consentimentoEm": null,
+                    "consentimentoEm": "2026-11-21T12:00:00.000Z",
                     "anonimizadoEm": null,
                     "criadoEm": "2026-11-21T12:00:00.000Z"
                   }
@@ -161,6 +161,16 @@
                     "value": {
                       "error": "SENHA_FRACA",
                       "message": "A senha precisa ter pelo menos 6 caracteres.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auth/cadastro"
+                    }
+                  },
+                  "dadosInvalidos": {
+                    "summary": "Campos enviados com tipo errado (por exemplo, senha como número)",
+                    "value": {
+                      "error": "DADOS_INVALIDOS",
+                      "message": "Nome, e-mail e senha precisam ser enviados como texto.",
                       "details": [],
                       "timestamp": "2026-11-21T12:00:00.000Z",
                       "path": "/auth/cadastro"
@@ -270,12 +280,27 @@
             "description": "Informe e-mail e senha.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "CAMPOS_OBRIGATORIOS",
-                  "message": "Informe e-mail e senha.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/auth/login"
+                "examples": {
+                  "camposObrigatorios": {
+                    "summary": "E-mail ou senha ausentes",
+                    "value": {
+                      "error": "CAMPOS_OBRIGATORIOS",
+                      "message": "Informe e-mail e senha.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auth/login"
+                    }
+                  },
+                  "dadosInvalidos": {
+                    "summary": "Campos enviados com tipo errado (por exemplo, senha como número)",
+                    "value": {
+                      "error": "DADOS_INVALIDOS",
+                      "message": "E-mail e senha precisam ser enviados como texto.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auth/login"
+                    }
+                  }
                 }
               }
             }

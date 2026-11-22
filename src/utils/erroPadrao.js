@@ -8,4 +8,4 @@ function enviarErro(res, req, status, error, message, details = []) {
     });
 }
 
-module.exports = { enviarErro };    
+module.exports = { enviarErro };
