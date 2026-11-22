@@ -1443,6 +1443,151 @@
         }
       }
     },
+    "/pedidos/{id}/cancelar": {
+      "patch": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Cancelar pedido",
+        "description": "O cliente cancela os próprios pedidos até o status EM_PREPARO; depois que o pedido fica PRONTO, só a equipe (ATENDENTE, COZINHA ou GERENTE) cancela, e a equipe pode cancelar pedidos de qualquer cliente. As quantidades dos itens voltam ao estoque. Pedidos ENTREGUE ou já CANCELADO não podem ser cancelados.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID do pedido",
+            "example": "22222222-2222-4222-8222-222222222222"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pedido cancelado",
+            "content": {
+              "application/json": {
+                "example": {
+                  "msg": "Pedido cancelado.",
+                  "pedido": {
+                    "id": "22222222-2222-4222-8222-222222222222",
+                    "clienteId": "11111111-1111-4111-8111-111111111111",
+                    "unidadeId": "33333333-3333-4333-8333-333333333333",
+                    "canalPedido": "TOTEM",
+                    "formaPagamento": "PIX",
+                    "status": "CANCELADO",
+                    "total": 31,
+                    "pontosUsados": 0,
+                    "desconto": 0,
+                    "criadoEm": "2026-11-21T12:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token não informado.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "NAO_AUTENTICADO",
+                  "message": "Token não informado.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "O pedido pertence a outro cliente.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "SEM_PERMISSAO",
+                  "message": "Você só pode cancelar os seus próprios pedidos.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pedido não encontrado.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "PEDIDO_NAO_ENCONTRADO",
+                  "message": "Pedido não encontrado.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "O pedido não pode mais ser cancelado.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "pedidoPronto": {
+                    "summary": "Cliente tentando cancelar pedido PRONTO",
+                    "value": {
+                      "error": "PEDIDO_NAO_CANCELAVEL",
+                      "message": "Este pedido já está pronto e não pode mais ser cancelado por você.",
+                      "details": [
+                        {
+                          "field": "status",
+                          "issue": "Procure o atendimento da unidade."
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                    }
+                  },
+                  "pedidoFinalizado": {
+                    "summary": "Pedido já ENTREGUE ou CANCELADO",
+                    "value": {
+                      "error": "TRANSICAO_INVALIDA",
+                      "message": "Não é possível mudar o pedido de ENTREGUE para CANCELADO.",
+                      "details": [
+                        {
+                          "field": "status",
+                          "issue": "Este pedido já foi finalizado e não pode mais mudar."
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao cancelar pedido.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ERRO_INTERNO",
+                  "message": "Erro ao cancelar pedido.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/pagamentos/processar": {
       "post": {
         "tags": [
