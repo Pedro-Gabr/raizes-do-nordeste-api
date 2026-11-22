@@ -294,7 +294,7 @@
           "Loja"
         ],
         "summary": "Consultar o cardápio de uma unidade",
-        "description": "Rota pública. Lista os produtos ativos que têm saldo em estoque na unidade, em ordem alfabética. Produto sem estoque ou desativado não aparece. A listagem ainda não tem paginação.",
+        "description": "Rota pública. Lista os produtos ativos que têm saldo em estoque na unidade, em ordem alfabética e paginados (pagina e limite). Produto sem estoque ou desativado não aparece.",
         "parameters": [
           {
             "name": "id",
@@ -305,6 +305,29 @@
             },
             "description": "ID da unidade",
             "example": "33333333-3333-4333-8333-333333333333"
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "description": "Número da página (começa em 1).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "description": "Itens por página (máximo 50).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "example": 10
           }
         ],
         "responses": {
@@ -312,20 +335,26 @@
             "description": "Cardápio da unidade",
             "content": {
               "application/json": {
-                "example": [
-                  {
-                    "id": "55555555-5555-4555-8555-555555555555",
-                    "nome": "Cuscuz Recheado",
-                    "preco": 12,
-                    "descricao": "Cuscuz nordestino com queijo coalho e manteiga de garrafa"
-                  },
-                  {
-                    "id": "44444444-4444-4444-8444-444444444444",
-                    "nome": "Tapioca de Carne de Sol",
-                    "preco": 15.5,
-                    "descricao": "Tapioca artesanal com carne de sol na nata"
-                  }
-                ]
+                "example": {
+                  "dados": [
+                    {
+                      "id": "55555555-5555-4555-8555-555555555555",
+                      "nome": "Cuscuz Recheado",
+                      "preco": 12,
+                      "descricao": "Cuscuz nordestino com queijo coalho e manteiga de garrafa"
+                    },
+                    {
+                      "id": "44444444-4444-4444-8444-444444444444",
+                      "nome": "Tapioca de Carne de Sol",
+                      "preco": 15.5,
+                      "descricao": "Tapioca artesanal com carne de sol na nata"
+                    }
+                  ],
+                  "pagina": 1,
+                  "limite": 10,
+                  "total": 2,
+                  "totalPaginas": 1
+                }
               }
             }
           },
@@ -339,6 +368,25 @@
                   "details": [],
                   "timestamp": "2026-11-21T12:00:00.000Z",
                   "path": "/unidades/33333333-3333-4333-8333-333333333333/cardapio"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Parâmetros de paginação inválidos.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "PAGINACAO_INVALIDA",
+                  "message": "Parâmetros de paginação inválidos.",
+                  "details": [
+                    {
+                      "field": "pagina",
+                      "issue": "Deve ser um número inteiro maior ou igual a 1."
+                    }
+                  ],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/unidades/33333333-3333-4333-8333-333333333333/cardapio?pagina=0"
                 }
               }
             }
@@ -366,21 +414,46 @@
           "Loja"
         ],
         "summary": "Listar produtos disponíveis",
-        "description": "A listagem atual retorna todos os produtos marcados como disponíveis; ainda não oferece paginação ou filtro por unidade.",
+        "description": "Lista os produtos marcados como disponíveis, em ordem alfabética, com paginação (pagina e limite).",
         "responses": {
           "200": {
             "description": "Lista de produtos",
             "content": {
               "application/json": {
-                "example": [
-                  {
-                    "id": "44444444-4444-4444-8444-444444444444",
-                    "nome": "Tapioca de Carne de Sol",
-                    "preco": 15.5,
-                    "descricao": "Tapioca artesanal com carne de sol na nata",
-                    "disponivel": true
-                  }
-                ]
+                "example": {
+                  "dados": [
+                    {
+                      "id": "44444444-4444-4444-8444-444444444444",
+                      "nome": "Tapioca de Carne de Sol",
+                      "preco": 15.5,
+                      "descricao": "Tapioca artesanal com carne de sol na nata",
+                      "disponivel": true
+                    }
+                  ],
+                  "pagina": 1,
+                  "limite": 10,
+                  "total": 1,
+                  "totalPaginas": 1
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Parâmetros de paginação inválidos.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "PAGINACAO_INVALIDA",
+                  "message": "Parâmetros de paginação inválidos.",
+                  "details": [
+                    {
+                      "field": "pagina",
+                      "issue": "Deve ser um número inteiro maior ou igual a 1."
+                    }
+                  ],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/produtos?pagina=0"
+                }
               }
             }
           },
@@ -398,7 +471,32 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "pagina",
+            "in": "query",
+            "description": "Número da página (começa em 1).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "description": "Itens por página (máximo 50).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "example": 10
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1021,7 +1119,7 @@
           "Pedidos"
         ],
         "summary": "Listar pedidos com filtros opcionais",
-        "description": "Clientes veem somente os próprios pedidos. A listagem atual não tem paginação.",
+        "description": "Clientes veem somente os próprios pedidos. A resposta é paginada (pagina e limite), do mais recente para o mais antigo, e os filtros valem para o total.",
         "security": [
           {
             "bearerAuth": []
@@ -1058,6 +1156,29 @@
               ]
             },
             "example": "PAGO"
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "description": "Número da página (começa em 1).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "description": "Itens por página (máximo 50).",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "example": 10
           }
         ],
         "responses": {
@@ -1065,30 +1186,36 @@
             "description": "Lista de pedidos",
             "content": {
               "application/json": {
-                "example": [
-                  {
-                    "id": "22222222-2222-4222-8222-222222222222",
-                    "clienteId": "11111111-1111-4111-8111-111111111111",
-                    "unidadeId": "33333333-3333-4333-8333-333333333333",
-                    "canalPedido": "TOTEM",
-                    "formaPagamento": "PIX",
-                    "status": "AGUARDANDO_PAGAMENTO",
-                    "total": 31,
-                    "pontosUsados": 0,
-                    "desconto": 0,
-                    "criadoEm": "2026-11-21T12:00:00.000Z",
-                    "itens": [
-                      {
-                        "id": "66666666-6666-4666-8666-666666666666",
-                        "pedidoId": "22222222-2222-4222-8222-222222222222",
-                        "produtoId": "44444444-4444-4444-8444-444444444444",
-                        "quantidade": 2,
-                        "precoUnitario": 15.5
-                      }
-                    ],
-                    "pagamento": null
-                  }
-                ]
+                "example": {
+                  "dados": [
+                    {
+                      "id": "22222222-2222-4222-8222-222222222222",
+                      "clienteId": "11111111-1111-4111-8111-111111111111",
+                      "unidadeId": "33333333-3333-4333-8333-333333333333",
+                      "canalPedido": "TOTEM",
+                      "formaPagamento": "PIX",
+                      "status": "AGUARDANDO_PAGAMENTO",
+                      "total": 31,
+                      "pontosUsados": 0,
+                      "desconto": 0,
+                      "criadoEm": "2026-11-21T12:00:00.000Z",
+                      "itens": [
+                        {
+                          "id": "66666666-6666-4666-8666-666666666666",
+                          "pedidoId": "22222222-2222-4222-8222-222222222222",
+                          "produtoId": "44444444-4444-4444-8444-444444444444",
+                          "quantidade": 2,
+                          "precoUnitario": 15.5
+                        }
+                      ],
+                      "pagamento": null
+                    }
+                  ],
+                  "pagina": 1,
+                  "limite": 10,
+                  "total": 1,
+                  "totalPaginas": 1
+                }
               }
             }
           },
@@ -1107,15 +1234,35 @@
             }
           },
           "422": {
-            "description": "Filtro canalPedido inválido.",
+            "description": "Filtro ou paginação inválidos.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "CANAL_INVALIDO",
-                  "message": "Filtro canalPedido inválido.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/pedidos"
+                "examples": {
+                  "canalInvalido": {
+                    "summary": "canalPedido fora da lista",
+                    "value": {
+                      "error": "CANAL_INVALIDO",
+                      "message": "Filtro canalPedido inválido.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  },
+                  "paginacaoInvalida": {
+                    "summary": "pagina ou limite inválidos",
+                    "value": {
+                      "error": "PAGINACAO_INVALIDA",
+                      "message": "Parâmetros de paginação inválidos.",
+                      "details": [
+                        {
+                          "field": "pagina",
+                          "issue": "Deve ser um número inteiro maior ou igual a 1."
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos?pagina=0"
+                    }
+                  }
                 }
               }
             }
