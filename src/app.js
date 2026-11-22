@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const lojaRoutes = require('./routes/lojaRoutes');
 const pedidoRoutes = require('./routes/pedidoRoutes');
 const pagamentoRoutes = require('./routes/pagamentoRoutes');
+const auditoriaRoutes = require('./routes/auditoriaRoutes');
 const { enviarErro } = require('./utils/erroPadrao');
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/auth', authRoutes);
 app.use('/', lojaRoutes);
 app.use('/pedidos', pedidoRoutes);
 app.use('/pagamentos', pagamentoRoutes);
+app.use('/auditoria', auditoriaRoutes);
 
 app.use((req, res) => {
     return enviarErro(res, req, 404, 'ROTA_NAO_ENCONTRADA', 'Rota não encontrada.');
