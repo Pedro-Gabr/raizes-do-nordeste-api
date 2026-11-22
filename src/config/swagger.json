@@ -3,7 +3,7 @@
   "info": {
     "title": "API Raízes do Nordeste",
     "version": "1.0.0",
-    "description": "Documentação das rotas implementadas. Os IDs e as datas mostrados nos exemplos são ilustrativos. Recursos como histórico e resgate de pontos ainda estão em desenvolvimento."
+    "description": "Documentação das rotas da API. Os IDs e as datas mostrados nos exemplos são ilustrativos. Além dos erros listados em cada rota, qualquer rota pode responder 400 JSON_INVALIDO (corpo que não é um JSON válido), 404 ROTA_NAO_ENCONTRADA (rota que não existe), 413 CORPO_MUITO_GRANDE e 500 ERRO_INTERNO. Todas as respostas de erro seguem o mesmo formato: error, message, details, timestamp e path."
   },
   "servers": [
     {
@@ -132,15 +132,40 @@
             }
           },
           "422": {
-            "description": "Informe um e-mail válido.",
+            "description": "Dados do cadastro inválidos.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "EMAIL_INVALIDO",
-                  "message": "Informe um e-mail válido.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/auth/cadastro"
+                "examples": {
+                  "camposObrigatorios": {
+                    "summary": "Nome, e-mail ou senha ausentes",
+                    "value": {
+                      "error": "CAMPOS_OBRIGATORIOS",
+                      "message": "Nome, e-mail e senha são obrigatórios.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auth/cadastro"
+                    }
+                  },
+                  "emailInvalido": {
+                    "summary": "E-mail em formato inválido",
+                    "value": {
+                      "error": "EMAIL_INVALIDO",
+                      "message": "Informe um e-mail válido.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auth/cadastro"
+                    }
+                  },
+                  "senhaFraca": {
+                    "summary": "Senha com menos de 6 caracteres",
+                    "value": {
+                      "error": "SENHA_FRACA",
+                      "message": "A senha precisa ter pelo menos 6 caracteres.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auth/cadastro"
+                    }
+                  }
                 }
               }
             }
@@ -152,6 +177,20 @@
                 "example": {
                   "error": "ERRO_INTERNO",
                   "message": "Erro interno no servidor.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/auth/cadastro"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Muitas tentativas com falha. O limite é de 10 a cada 15 minutos (valor padrão).",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "MUITAS_TENTATIVAS",
+                  "message": "Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.",
                   "details": [],
                   "timestamp": "2026-11-21T12:00:00.000Z",
                   "path": "/auth/cadastro"
@@ -248,6 +287,20 @@
                 "example": {
                   "error": "ERRO_INTERNO",
                   "message": "Erro ao realizar login.",
+                  "details": [],
+                  "timestamp": "2026-11-21T12:00:00.000Z",
+                  "path": "/auth/login"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Muitas tentativas com falha. O limite é de 10 a cada 15 minutos (valor padrão).",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "MUITAS_TENTATIVAS",
+                  "message": "Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.",
                   "details": [],
                   "timestamp": "2026-11-21T12:00:00.000Z",
                   "path": "/auth/login"
@@ -566,15 +619,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/produtos"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/produtos"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/produtos"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/produtos"
+                    }
+                  }
                 }
               }
             }
@@ -686,15 +764,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/estoque"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque"
+                    }
+                  }
                 }
               }
             }
@@ -845,15 +948,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/estoque/33333333-3333-4333-8333-333333333333"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque/33333333-3333-4333-8333-333333333333"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque/33333333-3333-4333-8333-333333333333"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/estoque/33333333-3333-4333-8333-333333333333"
+                    }
+                  }
                 }
               }
             }
@@ -902,15 +1030,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/fidelidade/saldo"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/fidelidade/saldo"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/fidelidade/saldo"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/fidelidade/saldo"
+                    }
+                  }
                 }
               }
             }
@@ -1002,15 +1155,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/fidelidade/historico"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/fidelidade/historico"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/fidelidade/historico"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/fidelidade/historico"
+                    }
+                  }
                 }
               }
             }
@@ -1166,15 +1344,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/pedidos"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  }
                 }
               }
             }
@@ -1285,6 +1488,21 @@
                         {
                           "field": "pontosResgatar",
                           "issue": "Máximo para este pedido: 150 pontos"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  },
+                  "itemInvalido": {
+                    "summary": "Item sem produtoId ou com quantidade inválida",
+                    "value": {
+                      "error": "ITEM_INVALIDO",
+                      "message": "Produto e quantidade maior que zero são obrigatórios.",
+                      "details": [
+                        {
+                          "field": "itens[0]",
+                          "issue": "Verifique produtoId e quantidade (número inteiro maior que zero)"
                         }
                       ],
                       "timestamp": "2026-11-21T12:00:00.000Z",
@@ -1417,15 +1635,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/pedidos"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos"
+                    }
+                  }
                 }
               }
             }
@@ -1554,15 +1797,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/pedidos/22222222-2222-4222-8222-222222222222/status"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos/22222222-2222-4222-8222-222222222222/status"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos/22222222-2222-4222-8222-222222222222/status"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos/22222222-2222-4222-8222-222222222222/status"
+                    }
+                  }
                 }
               }
             }
@@ -1688,15 +1956,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pedidos/22222222-2222-4222-8222-222222222222/cancelar"
+                    }
+                  }
                 }
               }
             }
@@ -1846,32 +2139,77 @@
             }
           },
           "422": {
-            "description": "Pagamento recusado pelo mock (ou dados inválidos)",
+            "description": "Pagamento recusado pelo mock ou dados da requisição inválidos.",
             "content": {
               "application/json": {
-                "example": {
-                  "msg": "Pagamento recusado pelo provedor externo.",
-                  "pagamento": {
-                    "id": "55555555-5555-4555-8555-555555555555",
-                    "pedidoId": "22222222-2222-4222-8222-222222222222",
-                    "status": "RECUSADO",
-                    "transacaoId": "MOCK-1795262400000",
-                    "valor": 31
+                "examples": {
+                  "pagamentoRecusado": {
+                    "summary": "Pagamento recusado pelo mock",
+                    "value": {
+                      "msg": "Pagamento recusado pelo provedor externo.",
+                      "pagamento": {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "pedidoId": "22222222-2222-4222-8222-222222222222",
+                        "status": "RECUSADO",
+                        "transacaoId": "MOCK-1795262400000",
+                        "valor": 31
+                      }
+                    }
+                  },
+                  "dadosInvalidos": {
+                    "summary": "pedidoId ausente ou resultado diferente de APROVADO/RECUSADO",
+                    "value": {
+                      "error": "DADOS_PAGAMENTO_INVALIDOS",
+                      "message": "Informe pedidoId e resultado (APROVADO ou RECUSADO).",
+                      "details": [
+                        {
+                          "field": "resultado",
+                          "issue": "Use APROVADO ou RECUSADO"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pagamentos/processar"
+                    }
                   }
                 }
               }
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/pagamentos/processar"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pagamentos/processar"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pagamentos/processar"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pagamentos/processar"
+                    }
+                  }
                 }
               }
             }
@@ -1905,15 +2243,35 @@
             }
           },
           "409": {
-            "description": "Este pedido já possui um pagamento registrado.",
+            "description": "O pedido já foi pago ou não está aguardando pagamento.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "PAGAMENTO_JA_PROCESSADO",
-                  "message": "Este pedido já possui um pagamento registrado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/pagamentos/processar"
+                "examples": {
+                  "pagamentoJaProcessado": {
+                    "summary": "Pedido que já tem pagamento",
+                    "value": {
+                      "error": "PAGAMENTO_JA_PROCESSADO",
+                      "message": "Este pedido já possui um pagamento registrado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pagamentos/processar"
+                    }
+                  },
+                  "pedidoNaoPagavel": {
+                    "summary": "Pedido que não está em AGUARDANDO_PAGAMENTO",
+                    "value": {
+                      "error": "PEDIDO_NAO_PAGAVEL",
+                      "message": "Este pedido não está aguardando pagamento.",
+                      "details": [
+                        {
+                          "field": "pedidoId",
+                          "issue": "Status atual: CANCELADO"
+                        }
+                      ],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/pagamentos/processar"
+                    }
+                  }
                 }
               }
             }
@@ -2025,15 +2383,40 @@
             }
           },
           "401": {
-            "description": "Token não informado.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/auditoria"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auditoria"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auditoria"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/auditoria"
+                    }
+                  }
                 }
               }
             }
@@ -2133,15 +2516,40 @@
             }
           },
           "401": {
-            "description": "Token não informado, inválido ou de conta anonimizada.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/lgpd/consentimento"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/consentimento"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/consentimento"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/consentimento"
+                    }
+                  }
                 }
               }
             }
@@ -2208,15 +2616,40 @@
             }
           },
           "401": {
-            "description": "Token não informado, inválido ou de conta anonimizada.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/lgpd/consentimento"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/consentimento"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/consentimento"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/consentimento"
+                    }
+                  }
                 }
               }
             }
@@ -2340,15 +2773,40 @@
             }
           },
           "401": {
-            "description": "Token não informado, inválido ou de conta anonimizada.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/lgpd/meus-dados"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/meus-dados"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/meus-dados"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/meus-dados"
+                    }
+                  }
                 }
               }
             }
@@ -2416,15 +2874,40 @@
             }
           },
           "401": {
-            "description": "Token não informado, inválido ou de conta anonimizada.",
+            "description": "Token não informado, inválido, expirado ou de conta anonimizada.",
             "content": {
               "application/json": {
-                "example": {
-                  "error": "NAO_AUTENTICADO",
-                  "message": "Token não informado.",
-                  "details": [],
-                  "timestamp": "2026-11-21T12:00:00.000Z",
-                  "path": "/lgpd/anonimizar"
+                "examples": {
+                  "semToken": {
+                    "summary": "Token não informado",
+                    "value": {
+                      "error": "NAO_AUTENTICADO",
+                      "message": "Token não informado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/anonimizar"
+                    }
+                  },
+                  "tokenInvalido": {
+                    "summary": "Token inválido ou expirado",
+                    "value": {
+                      "error": "TOKEN_INVALIDO",
+                      "message": "Token inválido ou expirado.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/anonimizar"
+                    }
+                  },
+                  "contaAnonimizada": {
+                    "summary": "Token de uma conta já anonimizada",
+                    "value": {
+                      "error": "CONTA_ANONIMIZADA",
+                      "message": "Esta conta foi anonimizada e não pode mais ser usada.",
+                      "details": [],
+                      "timestamp": "2026-11-21T12:00:00.000Z",
+                      "path": "/lgpd/anonimizar"
+                    }
+                  }
                 }
               }
             }
