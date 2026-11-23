@@ -32,11 +32,11 @@ Não são coletados CPF, telefone, endereço do cliente nem dados de cartão.
 | Auditoria | Segurança e prevenção a fraudes | Legítimo interesse (inciso IX) |
 | Guarda mínima de pedidos após anonimização | Controle financeiro e prestação de contas | Cumprimento de obrigação legal ou regulatória (inciso II) |
 
-O consentimento é pedido no cadastro pelo campo `aceitouTermos`. Só o valor booleano `true` conta como aceite; qualquer outro valor (texto, número) é tratado como não consentido.
+O consentimento é pedido no cadastro pelo campo `consentimentoLGPD`. Só o valor booleano `true` conta como aceite; qualquer outro valor (texto, número) é tratado como não consentido.
 
 ## 3. Registro do consentimento
 
-- Ao cadastrar com `aceitouTermos: true`, a API salva `consentimentoLGPD = true` e `consentimentoEm` com a data e a hora do aceite.
+- Ao cadastrar com `consentimentoLGPD: true`, a API salva o aceite e `consentimentoEm` com a data e a hora do aceite.
 - O cliente pode consultar o estado atual com `GET /lgpd/consentimento` e alterá-lo com `PATCH /lgpd/consentimento` (`{ "consentimentoLGPD": true | false }`).
 - Ao revogar, `consentimentoEm` volta a ficar vazio; ao conceder, recebe a nova data.
 - Cada concessão ou revogação gera um registro de auditoria (`CONSENTIMENTO_CONCEDIDO` ou `CONSENTIMENTO_REVOGADO`).
@@ -58,7 +58,7 @@ Todas as rotas `/lgpd` exigem token JWT.
 - **Senhas** com hash bcrypt; a senha original nunca aparece em respostas.
 - **JWT** com validade de 1 dia. O servidor só inicia se `JWT_SECRET` tiver pelo menos 32 caracteres e não for o texto de exemplo.
 - **Controle de acesso por perfil**: o cliente só vê os próprios pedidos e dados; a consulta de auditoria é restrita ao GERENTE.
-- **Limite de tentativas**: login e cadastro aceitam 10 tentativas com falha a cada 15 minutos (resposta 429 `MUITAS_TENTATIVAS`).
+- **Limite de tentativas**: o login aceita 10 tentativas com senha errada a cada 15 minutos por origem; passando disso, a resposta é 429 `MUITAS_TENTATIVAS`.
 - **Minimização**: a API não pede dados que não usa e não recebe dados de cartão.
 - **Erros padronizados** que não expõem detalhes internos.
 
@@ -111,7 +111,7 @@ Neste projeto não há rotina automática de exclusão por prazo. A eliminação
 
 Roteiro sugerido (todos os exemplos estão na coleção do Postman em `docs/`):
 
-1. Cadastrar cliente com `aceitouTermos: true` e conferir `consentimentoEm` em `GET /lgpd/consentimento`.
+1. Cadastrar cliente com `consentimentoLGPD: true` e conferir `consentimentoEm` em `GET /lgpd/consentimento`.
 2. Revogar o consentimento e tentar resgatar pontos (403 `CONSENTIMENTO_NECESSARIO`).
 3. Consultar `GET /lgpd/meus-dados` e verificar que a senha não aparece.
 4. Anonimizar a conta com a senha correta e conferir que o login antigo falha.

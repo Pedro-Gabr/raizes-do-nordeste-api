@@ -3,7 +3,7 @@
   "info": {
     "title": "API Raízes do Nordeste",
     "version": "1.0.0",
-    "description": "Documentação das rotas da API. Os IDs e as datas mostrados nos exemplos são ilustrativos. Além dos erros listados em cada rota, qualquer rota pode responder 400 JSON_INVALIDO (corpo que não é um JSON válido), 404 ROTA_NAO_ENCONTRADA (rota que não existe), 413 CORPO_MUITO_GRANDE e 500 ERRO_INTERNO. Todas as respostas de erro seguem o mesmo formato: error, message, details, timestamp e path."
+    "description": "Documentação das rotas da API. Os IDs e as datas mostrados nos exemplos são ilustrativos. Além dos erros listados em cada rota, qualquer rota pode responder 400 JSON_INVALIDO (corpo que não é um JSON válido), 404 ROTA_NAO_ENCONTRADA (rota que não existe), 413 CORPO_MUITO_GRANDE e 500 ERRO_INTERNO. Todas as respostas de erro seguem o mesmo formato: error, message, details, timestamp e path. Nas listagens paginadas, os parâmetros podem ser enviados como pagina e limite ou como page e limit (os dois nomes funcionam)."
   },
   "servers": [
     {
@@ -195,7 +195,7 @@
             }
           },
           "429": {
-            "description": "Muitas tentativas com falha. O limite é de 10 a cada 15 minutos (valor padrão).",
+            "description": "Muitas tentativas de login com senha errada (limite padrão: 10 a cada 15 minutos). Enquanto durar o bloqueio, login e cadastro respondem 429.",
             "content": {
               "application/json": {
                 "example": {
@@ -320,7 +320,7 @@
             }
           },
           "429": {
-            "description": "Muitas tentativas com falha. O limite é de 10 a cada 15 minutos (valor padrão).",
+            "description": "Muitas tentativas de login com senha errada (limite padrão: 10 a cada 15 minutos). Enquanto durar o bloqueio, login e cadastro respondem 429.",
             "content": {
               "application/json": {
                 "example": {

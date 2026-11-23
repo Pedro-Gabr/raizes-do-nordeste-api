@@ -2,8 +2,11 @@ const LIMITE_PADRAO = 10;
 const LIMITE_MAXIMO = 50;
 
 function lerPaginacao(query) {
-    const pagina = query.pagina === undefined ? 1 : Number(query.pagina);
-    const limite = query.limite === undefined ? LIMITE_PADRAO : Number(query.limite);
+    // aceita pagina/limite e também page/limit, que é o nome usado no roteiro do projeto
+    const paginaInformada = query.pagina !== undefined ? query.pagina : query.page;
+    const limiteInformado = query.limite !== undefined ? query.limite : query.limit;
+    const pagina = paginaInformada === undefined ? 1 : Number(paginaInformada);
+    const limite = limiteInformado === undefined ? LIMITE_PADRAO : Number(limiteInformado);
     const details = [];
 
     if (!Number.isInteger(pagina) || pagina < 1) {

@@ -12,6 +12,7 @@ Para construir o back-end, usei Node.js com Express, Prisma e SQLite. Também im
 - **Swagger (com o servidor rodando):** http://localhost:3000/api-docs
 - **Coleção Postman:** [raizes-do-nordeste.postman_collection.json](docs/raizes-do-nordeste.postman_collection.json)
 - **Requisitos (RF e RNF, com prioridades):** [requisitos.md](docs/requisitos.md)
+- **Plano de testes (48 cenários):** [plano-de-testes.md](docs/plano-de-testes.md)
 - **LGPD (dados, finalidade, base legal, direitos do titular):** [lgpd.md](docs/lgpd.md)
 - **DER (modelo do banco):** [DER em PDF](docs/DER-raizes-do-nordeste.pdf)
 
@@ -22,7 +23,7 @@ Para construir o back-end, usei Node.js com Express, Prisma e SQLite. Também im
 - **SQLite:** armazenamento dos dados.
 - **JWT:** autenticação.
 - **bcryptjs:** proteção das senhas por hash.
-- **express-rate-limit:** bloqueio temporário após excesso de tentativas no login e no cadastro.
+- **express-rate-limit:** bloqueio temporário depois de várias tentativas de login com senha errada.
 - **Swagger:** documentação das rotas.
 - **Postman:** coleção de testes das requisições.
 
@@ -60,7 +61,7 @@ O servidor não sobe se o `JWT_SECRET` estiver vazio, tiver menos de 32 caracter
 node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 ```
 
-Cole o resultado no `.env` e não suba esse arquivo para o GitHub. Se quiser alterar o limite de tentativas falhas no login e cadastro (o padrão são 10 a cada 15 minutos), basta configurar a variável opcional `AUTH_RATE_LIMIT_MAX`.
+Cole o resultado no `.env` e não suba esse arquivo para o GitHub. Se quiser alterar o limite de tentativas de login com senha errada (o padrão são 10 a cada 15 minutos), basta configurar a variável opcional `AUTH_RATE_LIMIT_MAX`. Só a senha errada entra nessa conta: login correto e erros de validação não contam.
 
 ### 3. Preparando o banco
 
@@ -119,7 +120,7 @@ Authorization: Bearer SEU_TOKEN
 
 ### Regras de negócio principais
 
-- **Canais e paginação:** O campo `canalPedido` aceita `APP`, `TOTEM`, `BALCAO`, `PICKUP` e `WEB`, e dá para filtrar a listagem de pedidos por ele. As rotas paginadas recebem `pagina` (padrão 1) e `limite` (padrão 10, teto de 50), devolvendo `dados`, `pagina`, `limite`, `total` e `totalPaginas`.
+- **Canais e paginação:** O campo `canalPedido` aceita `APP`, `TOTEM`, `BALCAO`, `PICKUP` e `WEB`, e dá para filtrar a listagem de pedidos por ele. As rotas paginadas recebem `pagina` (padrão 1) e `limite` (padrão 10, teto de 50), e também aceitam `page` e `limit`, devolvendo `dados`, `pagina`, `limite`, `total` e `totalPaginas`.
 - **Controle de estoque:** Cada unidade gerencia o próprio estoque. O gerente registra as entradas, a baixa ocorre assim que o pedido é criado e os itens voltam para o saldo se o pedido for cancelado ou o pagamento recusado.
 - **Ciclo do pedido:** O fluxo segue a ordem `AGUARDANDO_PAGAMENTO` → `PAGO` → `EM_PREPARO` → `PRONTO` → `ENTREGUE`. O cliente consegue cancelar o pedido enquanto ele não passar de `EM_PREPARO`; depois disso, só a equipe da loja pode cancelar.
 - **Pagamento (simulado):** Como não há gateway externo, o resultado (`APROVADO` ou `RECUSADO`) vai direto no corpo da requisição. Se aprovar, o status muda para `PAGO`; se recusar, o pedido é cancelado automaticamente.
@@ -135,46 +136,19 @@ Sobre os direitos do titular: o cliente pode exportar os próprios dados (sem a 
 
 ## Como testar
 
-A [coleção do Postman](docs/raizes-do-nordeste.postman_collection.json) tem 46 requisições em 9 pastas. Cada uma já confere o status HTTP e, nos erros, o formato padronizado da resposta.
+A [coleção do Postman](docs/raizes-do-nordeste.postman_collection.json) tem 52 requisições em 9 pastas. Cada uma já confere o status HTTP e, nos erros, o formato padronizado da resposta.
 
 1. Suba a API e rode o seed uma única vez.
 2. Importe o arquivo JSON da coleção no Postman e confira se a variável `baseUrl` aponta para `http://localhost:3000`.
 3. Abra o **Collection Runner**, selecione a coleção e clique em **Run** mantendo a ordem original das pastas.
 
-A pasta 0 faz o login e guarda os tokens e os IDs sozinha, então não precisa copiar nada na mão. Cada execução cadastra um cliente novo e anonimiza essa conta no final, por isso dá para rodar várias vezes seguidas sem limpar o banco. No fim, as 78 verificações devem passar.
+A pasta 0 faz o login e guarda os tokens e os IDs sozinha, então não precisa copiar nada na mão. Cada execução cadastra um cliente novo e anonimiza essa conta no final, por isso dá para rodar várias vezes seguidas sem limpar o banco. No fim, as 90 verificações devem passar.
 
 ### Plano de testes
 
-Cada linha abaixo corresponde a uma requisição da coleção (a pasta 0 só prepara os tokens e os IDs). Os negativos usam o prefixo N.
+O [plano de testes](docs/plano-de-testes.md) tem 48 cenários (30 positivos e 18 negativos). Cada um informa o endpoint, a pré-condição, a entrada, o resultado esperado e a requisição da coleção que serve de evidência. Os positivos usam o prefixo T e os negativos o prefixo N. A pasta 0 da coleção só prepara os tokens e os IDs.
 
-| ID | Pasta | Cenário | Requisição | Resultado esperado |
-|---|---|---|---|---|
-| T01 | 1 | Cadastro com consentimento | `POST /auth/cadastro` com `consentimentoLGPD: true` | 201, `consentimentoEm` preenchido, sem senha |
-| T02 | 1 | Login | `POST /auth/login` | 200 com `accessToken` |
-| T03 | 2 | Cardápio paginado | `GET /unidades/:id/cardapio?pagina=1&limite=1` | 200 com `dados`, `pagina`, `limite`, `total`, `totalPaginas` |
-| T04, T05 | 2 | Entrada e consulta de estoque | `POST /estoque` e `GET /estoque/:unidadeId` (gerente) | 201 e 200 |
-| T06 | 3 | Pedido pelo TOTEM | `POST /pedidos` com `canalPedido: TOTEM` | 201, status `AGUARDANDO_PAGAMENTO` |
-| T07 | 3 | Filtro por canal | `GET /pedidos?canalPedido=TOTEM` | 200, só pedidos TOTEM |
-| T08 | 3 | Pagamento aprovado | `POST /pagamentos/processar` com `APROVADO` | 200, pedido `PAGO`, pontos acumulados |
-| T09 a T11 | 3 | Andamento do pedido | `PATCH /pedidos/:id/status` (gerente) | 200 em cada etapa, até `ENTREGUE` |
-| T12, T13 | 4 | Saldo e histórico de pontos | `GET /fidelidade/saldo` e `/historico` | 200, histórico com `ACUMULO` |
-| T14, T15 | 4 | Resgate de pontos | `POST /pedidos` com `pontosResgatar: 10` e pagamento | 201 com R$ 1,00 de desconto; 200 no pagamento |
-| T16, T17 | 5 | Pagamento recusado | `POST /pagamentos/processar` com `RECUSADO` | 422, pedido cancelado |
-| T18, T19 | 5 | Cancelamento pelo cliente | `PATCH /pedidos/:id/cancelar` | 200, status `CANCELADO` |
-| T20 a T22 | 6 | Consentimento e exportação | `GET` e `PATCH /lgpd/consentimento`, `GET /lgpd/meus-dados` | 200, sem senha nos dados |
-| T23 a T25 | 6 | Anonimização | `POST /lgpd/anonimizar` | 200; token antigo 401 `CONTA_ANONIMIZADA`; login antigo 401 |
-| T26 a T28 | 7 | Auditoria | `GET /auditoria` e filtros (gerente) | 200, paginado e filtrado |
-| N01, N02 | 8 | Sem token ou token inválido | `GET /pedidos` | 401 `NAO_AUTENTICADO` e `TOKEN_INVALIDO` |
-| N03, N04 | 8 | Sem permissão | Cliente em rota de gerente | 403 |
-| N05, N06 | 8 | Não encontrado | Pedido ou produto inexistente | 404 |
-| N07 | 8 | Canal ausente | `POST /pedidos` sem `canalPedido` | 422 `CANAL_INVALIDO` |
-| N08 | 8 | Estoque insuficiente | `POST /pedidos` com quantidade enorme | 409 `ESTOQUE_INSUFICIENTE` |
-| N09, N10 | 8 | Conflitos | E-mail repetido; pagar pedido já pago | 409 |
-| N11, N12 | 8 | Validação | Pontos acima do saldo; `pagina=0` | 422 |
-| N13 | 8 | Senha errada ao anonimizar | `POST /lgpd/anonimizar` | 403 `SENHA_INCORRETA` |
-| N14 | 8 | Rota inexistente | `GET /rota-que-nao-existe` | 404 `ROTA_NAO_ENCONTRADA` |
-
-Para testar o bloqueio por excesso de tentativas (`429 MUITAS_TENTATIVAS`), coloque `AUTH_RATE_LIMIT_MAX=3` no `.env`, reinicie a API e erre a senha no login 4 vezes seguidas. Deixei esse teste fora da coleção porque ele bloquearia o login dos cenários seguintes. Depois de testar, lembre de tirar a variável do `.env`. Os prints dos testes no Thunder Client e no Postman estão no documento de evidências que entreguei junto com o trabalho.
+Para testar o bloqueio por excesso de tentativas (`429 MUITAS_TENTATIVAS`), coloque `AUTH_RATE_LIMIT_MAX=3` no `.env`, reinicie a API e erre a senha no login 4 vezes seguidas (só tentativas com senha errada contam). Deixei esse teste fora da coleção porque ele bloquearia o login dos cenários seguintes. Depois de testar, lembre de tirar a variável do `.env`. Os prints dos testes no Thunder Client e no Postman estão no documento de evidências que entreguei junto com o trabalho.
 
 ## Padrão de erros
 
@@ -207,6 +181,7 @@ O esquema está em `prisma/schema.prisma` e as migrations ficam em `prisma/migra
 raizes-do-nordeste-api/
 ├── docs/
 │   ├── requisitos.md
+│   ├── plano-de-testes.md
 │   ├── lgpd.md
 │   ├── DER-raizes-do-nordeste.pdf
 │   ├── DER-raizes-do-nordeste.drawio
