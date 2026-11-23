@@ -1,0 +1,37 @@
+classDiagram
+    direction TB
+
+    class PedidoService {
+        +criarPedido(dados)
+        +listarPedidos(filtros, usuario, paginacao)
+        +atualizarStatusPedido(id, status, usuarioId, perfil)
+        +cancelarPedido(id, usuarioId, perfil)
+    }
+    class PagamentoService {
+        +processarPagamentoMock(pedidoId, resultado, usuarioId, perfil)
+    }
+    class FidelidadeService {
+        +calcularResgate(pontosResgatar, subtotal, usuario)
+        +registrarMovimento(tx, dados)
+        +estornarPontosDoPedido(tx, dados)
+    }
+    class EstoqueService {
+        +registrarEntrada(unidadeId, produtoId, quantidade, usuarioId)
+        +listarCardapio(unidadeId, paginacao)
+    }
+    class LgpdService {
+        +consultarConsentimento(usuarioId)
+        +alterarConsentimento(usuarioId, consentimento)
+        +exportarDados(usuarioId)
+        +anonimizarConta(usuarioId, senha)
+    }
+    class AuditoriaService {
+        +registrarLog(usuarioId, acao, entidade, entidadeId, detalhes)
+    }
+
+    PedidoService ..> FidelidadeService : usa
+    PedidoService ..> AuditoriaService : usa
+    PagamentoService ..> FidelidadeService : usa
+    PagamentoService ..> AuditoriaService : usa
+    EstoqueService ..> AuditoriaService : usa
+    LgpdService ..> AuditoriaService : usa

@@ -1,0 +1,48 @@
+sequenceDiagram
+    autonumber
+    actor C as Cliente
+    participant A as API (rota, JWT e controller)
+    participant P as PedidoService
+    participant G as PagamentoService
+    participant GW as Gateway (simulado)
+    participant B as Banco (Prisma / SQLite)
+    actor F as Equipe (Atendente, Cozinha, Gerente)
+
+    Note over C,B: 1. Realizar pedido
+    C->>A: POST /pedidos (unidadeId, canalPedido, itens)
+    A->>A: valida o token
+    A->>P: criarPedido(...)
+    P->>B: confere unidade, produtos e estoque
+    alt dado inválido, item inexistente ou estoque insuficiente
+        P-->>A: 422, 404 ou 409
+        A-->>C: erro padronizado
+    else pedido válido
+        P->>B: transação: cria pedido e itens, baixa o estoque, grava CRIAR_PEDIDO
+        P-->>A: pedido AGUARDANDO_PAGAMENTO
+        A-->>C: 201 Created
+    end
+
+    Note over C,GW: 2. Solicitar pagamento
+    C->>A: POST /pagamentos/processar (pedidoId, resultado)
+    A->>G: processarPagamentoMock(...)
+    G->>B: confere o pedido (existe, é do cliente, sem pagamento anterior)
+    G->>GW: solicita autorização (simulada)
+    GW-->>G: APROVADO ou RECUSADO (vem no corpo da requisição)
+    alt APROVADO
+        G->>B: transação: cria Pagamento, pedido vira PAGO, acumula pontos (se houver consentimento)
+        G->>B: grava PAGAMENTO_APROVADO
+        G-->>A: pagamento aprovado
+        A-->>C: 200 OK
+    else RECUSADO
+        G->>B: transação: cria Pagamento, pedido vira CANCELADO, devolve estoque e estorna pontos
+        G->>B: grava PAGAMENTO_RECUSADO
+        G-->>A: pagamento recusado
+        A-->>C: 422 (pagamento recusado)
+    end
+
+    Note over F,B: 3. Atualizar status
+    F->>A: PATCH /pedidos/{id}/status (EM_PREPARO, PRONTO, ENTREGUE)
+    A->>P: atualizarStatusPedido(...)
+    P->>B: confere a transição permitida e atualiza o pedido
+    P->>B: grava ATUALIZAR_STATUS_PEDIDO
+    A-->>F: 200 OK

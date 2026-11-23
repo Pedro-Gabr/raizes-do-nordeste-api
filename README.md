@@ -15,6 +15,7 @@ Para construir o back-end, usei Node.js com Express, Prisma e SQLite. Também im
 - **Plano de testes (48 cenários):** [plano-de-testes.md](docs/plano-de-testes.md)
 - **LGPD (dados, finalidade, base legal, direitos do titular):** [lgpd.md](docs/lgpd.md)
 - **DER (modelo do banco):** [DER em PDF](docs/DER-raizes-do-nordeste.pdf)
+- **Arquitetura e diagramas (casos de uso, camadas, classes, sequência):** [arquitetura.md](docs/arquitetura.md)
 
 ## Tecnologias usadas
 
@@ -181,6 +182,8 @@ O esquema está em `prisma/schema.prisma` e as migrations ficam em `prisma/migra
 raizes-do-nordeste-api/
 ├── docs/
 │   ├── requisitos.md
+│   ├── arquitetura.md
+│   ├── diagramas/
 │   ├── plano-de-testes.md
 │   ├── lgpd.md
 │   ├── DER-raizes-do-nordeste.pdf

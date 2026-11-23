@@ -1,0 +1,13 @@
+stateDiagram-v2
+    direction LR
+    [*] --> AGUARDANDO_PAGAMENTO : pedido criado
+    AGUARDANDO_PAGAMENTO --> PAGO : pagamento aprovado
+    AGUARDANDO_PAGAMENTO --> CANCELADO : pagamento recusado ou cancelamento
+    PAGO --> EM_PREPARO : equipe
+    PAGO --> CANCELADO : cancelamento
+    EM_PREPARO --> PRONTO : equipe
+    EM_PREPARO --> CANCELADO : cancelamento
+    PRONTO --> ENTREGUE : equipe
+    PRONTO --> CANCELADO : só a equipe
+    ENTREGUE --> [*]
+    CANCELADO --> [*]
