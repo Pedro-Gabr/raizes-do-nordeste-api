@@ -1,108 +1,91 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1490" height="1050" viewBox="0 0 1490 1050" font-family="Arial, Helvetica, sans-serif">
-<defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#374151"/></marker></defs>
-<rect width="1490" height="1050" fill="#ffffff"/>
-<rect x="520" y="20" width="400" height="78" rx="8" fill="#ffffff" stroke="#6b7280" stroke-width="1.6"/>
-<text x="720.0" y="47" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Clientes HTTP</text>
-<text x="720.0" y="72" text-anchor="middle" font-size="12.5" fill="#374151">app, totem, balcão e site</text>
-<text x="720.0" y="90" text-anchor="middle" font-size="12.5" fill="#374151">Postman, Thunder Client, Swagger</text>
-<line x1="720" y1="98" x2="720" y2="140" stroke="#374151" stroke-width="2" marker-end="url(#seta)"/>
-<text x="732" y="125" font-size="12.5" font-style="italic" fill="#374151">requisição HTTP + JWT</text>
-<rect x="40" y="140" width="1360" height="190" rx="14" fill="#e8f1fb" stroke="#4a7bb5" stroke-width="2"/>
-<text x="58" y="168" font-size="17" font-weight="bold" fill="#111827">API (interface): rotas, autenticação, contratos e documentação</text>
-<rect x="60" y="185" width="248" height="120" rx="8" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
-<text x="184.0" y="212" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Rotas</text>
-<text x="184.0" y="237" text-anchor="middle" font-size="12.5" fill="#374151">src/routes</text>
-<text x="184.0" y="255" text-anchor="middle" font-size="12.5" fill="#374151">um arquivo por recurso</text>
-<text x="184.0" y="273" text-anchor="middle" font-size="12.5" fill="#374151">(auth, pedidos, pagamentos...)</text>
-<rect x="323" y="185" width="248" height="120" rx="8" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
-<text x="447.0" y="212" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Middlewares</text>
-<text x="447.0" y="237" text-anchor="middle" font-size="12.5" fill="#374151">src/middlewares</text>
-<text x="447.0" y="255" text-anchor="middle" font-size="12.5" fill="#374151">autenticação JWT, perfis</text>
-<text x="447.0" y="273" text-anchor="middle" font-size="12.5" fill="#374151">e limite de tentativas de login</text>
-<rect x="586" y="185" width="248" height="120" rx="8" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
-<text x="710.0" y="212" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Controllers</text>
-<text x="710.0" y="237" text-anchor="middle" font-size="12.5" fill="#374151">src/controllers</text>
-<text x="710.0" y="255" text-anchor="middle" font-size="12.5" fill="#374151">leem a requisição, chamam o</text>
-<text x="710.0" y="273" text-anchor="middle" font-size="12.5" fill="#374151">service e devolvem a resposta</text>
-<rect x="849" y="185" width="248" height="120" rx="8" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
-<text x="973.0" y="212" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Padrão de erros e paginação</text>
-<text x="973.0" y="237" text-anchor="middle" font-size="12.5" fill="#374151">src/utils</text>
-<text x="973.0" y="255" text-anchor="middle" font-size="12.5" fill="#374151">enviarErro() e lerPaginacao()</text>
-<rect x="1112" y="185" width="248" height="120" rx="8" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
-<text x="1236.0" y="212" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Swagger / OpenAPI</text>
-<text x="1236.0" y="237" text-anchor="middle" font-size="12.5" fill="#374151">src/config/swagger.json</text>
-<text x="1236.0" y="255" text-anchor="middle" font-size="12.5" fill="#374151">contratos de request/response</text>
-<text x="1236.0" y="273" text-anchor="middle" font-size="12.5" fill="#374151">servido em /api-docs</text>
-<line x1="700" y1="330" x2="700" y2="372" stroke="#374151" stroke-width="2" marker-end="url(#seta)"/>
-<text x="712" y="357" font-size="12.5" font-style="italic" fill="#374151">chama os casos de uso</text>
-<rect x="40" y="372" width="1360" height="215" rx="14" fill="#eaf6ec" stroke="#4f9a5b" stroke-width="2"/>
-<text x="58" y="400" font-size="17" font-weight="bold" fill="#111827">Application (casos de uso): orquestram o fluxo e aplicam as regras</text>
-<rect x="52" y="415" width="205" height="150" rx="8" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
-<text x="154.5" y="442" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">pedidoService</text>
-<text x="154.5" y="467" text-anchor="middle" font-size="12.5" fill="#374151">criar pedido,</text>
-<text x="154.5" y="485" text-anchor="middle" font-size="12.5" fill="#374151">listar, mudar status</text>
-<text x="154.5" y="503" text-anchor="middle" font-size="12.5" fill="#374151">e cancelar</text>
-<rect x="271" y="415" width="205" height="150" rx="8" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
-<text x="373.5" y="442" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">pagamentoService</text>
-<text x="373.5" y="467" text-anchor="middle" font-size="12.5" fill="#374151">pagamento mock</text>
-<text x="373.5" y="485" text-anchor="middle" font-size="12.5" fill="#374151">aprovado ou recusado</text>
-<rect x="490" y="415" width="205" height="150" rx="8" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
-<text x="592.5" y="442" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">fidelidadeService</text>
-<text x="592.5" y="467" text-anchor="middle" font-size="12.5" fill="#374151">acúmulo, resgate</text>
-<text x="592.5" y="485" text-anchor="middle" font-size="12.5" fill="#374151">e estorno de pontos</text>
-<rect x="709" y="415" width="205" height="150" rx="8" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
-<text x="811.5" y="442" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">estoqueService</text>
-<text x="811.5" y="467" text-anchor="middle" font-size="12.5" fill="#374151">entrada de estoque</text>
-<text x="811.5" y="485" text-anchor="middle" font-size="12.5" fill="#374151">e cardápio da unidade</text>
-<rect x="928" y="415" width="205" height="150" rx="8" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
-<text x="1030.5" y="442" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">lgpdService</text>
-<text x="1030.5" y="467" text-anchor="middle" font-size="12.5" fill="#374151">consentimento,</text>
-<text x="1030.5" y="485" text-anchor="middle" font-size="12.5" fill="#374151">exportação de dados</text>
-<text x="1030.5" y="503" text-anchor="middle" font-size="12.5" fill="#374151">e anonimização</text>
-<rect x="1147" y="415" width="205" height="150" rx="8" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
-<text x="1249.5" y="442" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">auditoriaService</text>
-<text x="1249.5" y="467" text-anchor="middle" font-size="12.5" fill="#374151">registro das ações</text>
-<text x="1249.5" y="485" text-anchor="middle" font-size="12.5" fill="#374151">sensíveis (LogAuditoria)</text>
-<line x1="370" y1="587" x2="370" y2="640" stroke="#374151" stroke-width="2" marker-end="url(#seta)"/>
-<text x="382" y="620" font-size="12.5" font-style="italic" fill="#374151">usa entidades e regras</text>
-<line x1="1060" y1="587" x2="1060" y2="640" stroke="#374151" stroke-width="2" marker-end="url(#seta)"/>
-<text x="1072" y="620" font-size="12.5" font-style="italic" fill="#374151">persiste e consulta</text>
-<rect x="40" y="640" width="660" height="215" rx="14" fill="#fdf3e1" stroke="#c58a2b" stroke-width="2"/>
-<text x="58" y="668" font-size="17" font-weight="bold" fill="#111827">Domain (domínio): entidades e regras</text>
-<rect x="58" y="685" width="305" height="150" rx="8" fill="#ffffff" stroke="#c58a2b" stroke-width="1.6"/>
-<text x="210.5" y="712" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Entidades</text>
-<text x="210.5" y="737" text-anchor="middle" font-size="12.5" fill="#374151">prisma/schema.prisma</text>
-<text x="210.5" y="755" text-anchor="middle" font-size="12.5" fill="#374151">Usuario, Unidade, Produto, Estoque,</text>
-<text x="210.5" y="773" text-anchor="middle" font-size="12.5" fill="#374151">Pedido, ItemPedido, Pagamento,</text>
-<text x="210.5" y="791" text-anchor="middle" font-size="12.5" fill="#374151">MovimentoPontos, LogAuditoria</text>
-<rect x="377" y="685" width="305" height="150" rx="8" fill="#ffffff" stroke="#c58a2b" stroke-width="1.6"/>
-<text x="529.5" y="712" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Regras de negócio</text>
-<text x="529.5" y="737" text-anchor="middle" font-size="12.5" fill="#374151">transições de status do pedido,</text>
-<text x="529.5" y="755" text-anchor="middle" font-size="12.5" fill="#374151">10 pontos = R$ 1 (teto de 50%),</text>
-<text x="529.5" y="773" text-anchor="middle" font-size="12.5" fill="#374151">baixa e devolução de estoque,</text>
-<text x="529.5" y="791" text-anchor="middle" font-size="12.5" fill="#374151">consentimento LGPD para pontos</text>
-<rect x="720" y="640" width="680" height="215" rx="14" fill="#f3ecf8" stroke="#8a5cae" stroke-width="2"/>
-<text x="738" y="668" font-size="17" font-weight="bold" fill="#111827">Infrastructure (infraestrutura): persistência e detalhes técnicos</text>
-<rect x="738" y="685" width="205" height="150" rx="8" fill="#ffffff" stroke="#8a5cae" stroke-width="1.6"/>
-<text x="840.5" y="712" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Prisma Client</text>
-<text x="840.5" y="737" text-anchor="middle" font-size="12.5" fill="#374151">src/config/prisma.js</text>
-<text x="840.5" y="755" text-anchor="middle" font-size="12.5" fill="#374151">acesso ao banco</text>
-<text x="840.5" y="773" text-anchor="middle" font-size="12.5" fill="#374151">e transações</text>
-<rect x="955" y="685" width="205" height="150" rx="8" fill="#ffffff" stroke="#8a5cae" stroke-width="1.6"/>
-<text x="1057.5" y="712" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">SQLite</text>
-<text x="1057.5" y="737" text-anchor="middle" font-size="12.5" fill="#374151">prisma/dev.db</text>
-<text x="1057.5" y="755" text-anchor="middle" font-size="12.5" fill="#374151">prisma/migrations</text>
-<rect x="1172" y="685" width="210" height="150" rx="8" fill="#ffffff" stroke="#8a5cae" stroke-width="1.6"/>
-<text x="1277.0" y="712" text-anchor="middle" font-size="14.5" font-weight="bold" fill="#111827">Bibliotecas</text>
-<text x="1277.0" y="737" text-anchor="middle" font-size="12.5" fill="#374151">bcryptjs (hash de senha)</text>
-<text x="1277.0" y="755" text-anchor="middle" font-size="12.5" fill="#374151">jsonwebtoken (JWT)</text>
-<text x="1277.0" y="773" text-anchor="middle" font-size="12.5" fill="#374151">gateway: mock no</text>
-<text x="1277.0" y="791" text-anchor="middle" font-size="12.5" fill="#374151">pagamentoService</text>
-<path d="M 1400 235 L 1432 235 L 1432 770 L 1402 770" fill="none" stroke="#374151" stroke-width="1.8" stroke-dasharray="7,5" marker-end="url(#seta)"/>
-<text transform="translate(1462,500) rotate(90)" text-anchor="middle" font-size="12" font-style="italic" fill="#374151">cadastro, login e consultas simples da loja usam o Prisma direto</text>
-<text x="40" y="900" font-size="14" fill="#111827" font-weight="bold">Como ler:</text>
-<text x="60" y="930" font-size="13.5" fill="#374151">• As setas mostram quem chama quem: a API chama a Application, que usa o Domain e a Infrastructure. Nada chama de volta para cima.</text>
-<text x="60" y="956" font-size="13.5" fill="#374151">• O domínio fica em dois lugares: as entidades no schema.prisma e as regras de negócio dentro dos services (não existem classes de domínio separadas).</text>
-<text x="60" y="982" font-size="13.5" fill="#374151">• O pagamento é simulado (mock) dentro do pagamentoService; um gateway real seria isolado em um módulo da Infrastructure.</text>
-<text x="60" y="1008" font-size="13.5" fill="#374151">• Tracejado: cadastro, login e algumas consultas da loja (unidades, produtos, saldo e histórico de pontos) são feitos no controller, sem passar por service.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="874" viewBox="0 0 900 874" font-family="Arial, Helvetica, sans-serif">
+<defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#374151"/></marker></defs>
+<rect width="900" height="874" fill="#ffffff"/>
+<rect x="250" y="8" width="400" height="64" rx="8" fill="#ffffff" stroke="#6b7280" stroke-width="1.6"/>
+<text x="450" y="33" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Clientes HTTP</text>
+<text x="450" y="54" text-anchor="middle" font-size="13.5" fill="#374151">app, totem, balcão, site, Postman, Swagger</text>
+<line x1="450" y1="72" x2="450" y2="110" stroke="#374151" stroke-width="2" marker-end="url(#seta)"/>
+<text x="460" y="96.0" font-size="13.5" font-style="italic" fill="#374151">requisição HTTP + JWT</text>
+<rect x="10" y="110" width="880" height="256" rx="12" fill="#e8f1fb" stroke="#4a7bb5" stroke-width="2"/>
+<text x="26" y="136" font-size="17" font-weight="bold" fill="#111827">API (interface)</text>
+<rect x="26" y="150" width="276" height="96" rx="7" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
+<text x="164.0" y="174" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Rotas</text>
+<text x="164.0" y="195" text-anchor="middle" font-size="13.5" fill="#374151">src/routes</text>
+<text x="164.0" y="213" text-anchor="middle" font-size="13.5" fill="#374151">um arquivo por recurso</text>
+<rect x="310" y="150" width="276" height="96" rx="7" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
+<text x="448.0" y="174" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Middlewares</text>
+<text x="448.0" y="195" text-anchor="middle" font-size="13.5" fill="#374151">src/middlewares</text>
+<text x="448.0" y="213" text-anchor="middle" font-size="13.5" fill="#374151">JWT, perfis e limite</text>
+<text x="448.0" y="231" text-anchor="middle" font-size="13.5" fill="#374151">de tentativas de login</text>
+<rect x="594" y="150" width="276" height="96" rx="7" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
+<text x="732.0" y="174" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Controllers</text>
+<text x="732.0" y="195" text-anchor="middle" font-size="13.5" fill="#374151">src/controllers</text>
+<text x="732.0" y="213" text-anchor="middle" font-size="13.5" fill="#374151">entrada, saída e erros;</text>
+<text x="732.0" y="231" text-anchor="middle" font-size="13.5" fill="#374151">cadastro e login usam o Prisma direto</text>
+<rect x="26" y="256" width="276" height="96" rx="7" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
+<text x="164.0" y="280" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Erros e paginação</text>
+<text x="164.0" y="301" text-anchor="middle" font-size="13.5" fill="#374151">src/utils</text>
+<text x="164.0" y="319" text-anchor="middle" font-size="13.5" fill="#374151">enviarErro e lerPaginacao</text>
+<rect x="310" y="256" width="276" height="96" rx="7" fill="#ffffff" stroke="#4a7bb5" stroke-width="1.6"/>
+<text x="448.0" y="280" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Swagger / OpenAPI</text>
+<text x="448.0" y="301" text-anchor="middle" font-size="13.5" fill="#374151">src/config/swagger.json</text>
+<text x="448.0" y="319" text-anchor="middle" font-size="13.5" fill="#374151">servido em /api-docs</text>
+<line x1="450" y1="366" x2="450" y2="404" stroke="#374151" stroke-width="2" marker-end="url(#seta)"/>
+<text x="460" y="390.0" font-size="13.5" font-style="italic" fill="#374151">chama os casos de uso</text>
+<rect x="10" y="404" width="880" height="256" rx="12" fill="#eaf6ec" stroke="#4f9a5b" stroke-width="2"/>
+<text x="26" y="430" font-size="17" font-weight="bold" fill="#111827">Application (casos de uso)</text>
+<rect x="26" y="444" width="276" height="96" rx="7" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
+<text x="164.0" y="468" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">pedidoService</text>
+<text x="164.0" y="489" text-anchor="middle" font-size="13.5" fill="#374151">criar, listar, mudar status</text>
+<text x="164.0" y="507" text-anchor="middle" font-size="13.5" fill="#374151">e cancelar pedido</text>
+<rect x="310" y="444" width="276" height="96" rx="7" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
+<text x="448.0" y="468" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">pagamentoService</text>
+<text x="448.0" y="489" text-anchor="middle" font-size="13.5" fill="#374151">pagamento mock</text>
+<text x="448.0" y="507" text-anchor="middle" font-size="13.5" fill="#374151">aprovado ou recusado</text>
+<rect x="594" y="444" width="276" height="96" rx="7" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
+<text x="732.0" y="468" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">fidelidadeService</text>
+<text x="732.0" y="489" text-anchor="middle" font-size="13.5" fill="#374151">acúmulo, resgate</text>
+<text x="732.0" y="507" text-anchor="middle" font-size="13.5" fill="#374151">e estorno de pontos</text>
+<rect x="26" y="550" width="276" height="96" rx="7" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
+<text x="164.0" y="574" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">estoqueService</text>
+<text x="164.0" y="595" text-anchor="middle" font-size="13.5" fill="#374151">entrada de estoque</text>
+<text x="164.0" y="613" text-anchor="middle" font-size="13.5" fill="#374151">e cardápio da unidade</text>
+<rect x="310" y="550" width="276" height="96" rx="7" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
+<text x="448.0" y="574" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">lgpdService</text>
+<text x="448.0" y="595" text-anchor="middle" font-size="13.5" fill="#374151">consentimento, exportação</text>
+<text x="448.0" y="613" text-anchor="middle" font-size="13.5" fill="#374151">e anonimização</text>
+<rect x="594" y="550" width="276" height="96" rx="7" fill="#ffffff" stroke="#4f9a5b" stroke-width="1.6"/>
+<text x="732.0" y="574" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">auditoriaService</text>
+<text x="732.0" y="595" text-anchor="middle" font-size="13.5" fill="#374151">registro das ações</text>
+<text x="732.0" y="613" text-anchor="middle" font-size="13.5" fill="#374151">(LogAuditoria)</text>
+<line x1="230" y1="660" x2="230" y2="698" stroke="#374151" stroke-width="2" marker-end="url(#seta)"/>
+<text x="240" y="684.0" font-size="13.5" font-style="italic" fill="#374151">usa entidades e regras</text>
+<line x1="670" y1="660" x2="670" y2="698" stroke="#374151" stroke-width="2" marker-end="url(#seta)"/>
+<text x="680" y="684.0" font-size="13.5" font-style="italic" fill="#374151">persiste</text>
+<rect x="10" y="698" width="440" height="166" rx="12" fill="#fdf3e1" stroke="#c58a2b" stroke-width="2"/>
+<text x="26" y="724" font-size="17" font-weight="bold" fill="#111827">Domain (domínio)</text>
+<rect x="22" y="738" width="205" height="112" rx="7" fill="#ffffff" stroke="#c58a2b" stroke-width="1.6"/>
+<text x="124.5" y="762" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Entidades</text>
+<text x="124.5" y="783" text-anchor="middle" font-size="13.5" fill="#374151">prisma/schema.prisma</text>
+<text x="124.5" y="801" text-anchor="middle" font-size="13.5" fill="#374151">Usuario, Pedido, Produto,</text>
+<text x="124.5" y="819" text-anchor="middle" font-size="13.5" fill="#374151">Estoque, Pagamento...</text>
+<rect x="233" y="738" width="205" height="112" rx="7" fill="#ffffff" stroke="#c58a2b" stroke-width="1.6"/>
+<text x="335.5" y="762" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Regras de negócio</text>
+<text x="335.5" y="783" text-anchor="middle" font-size="13.5" fill="#374151">status do pedido,</text>
+<text x="335.5" y="801" text-anchor="middle" font-size="13.5" fill="#374151">pontos e desconto,</text>
+<text x="335.5" y="819" text-anchor="middle" font-size="13.5" fill="#374151">baixa de estoque</text>
+<rect x="470" y="698" width="420" height="166" rx="12" fill="#f3ecf8" stroke="#8a5cae" stroke-width="2"/>
+<text x="486" y="724" font-size="17" font-weight="bold" fill="#111827">Infrastructure</text>
+<rect x="482" y="738" width="130" height="112" rx="7" fill="#ffffff" stroke="#8a5cae" stroke-width="1.6"/>
+<text x="547.0" y="762" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Prisma</text>
+<text x="547.0" y="783" text-anchor="middle" font-size="13.5" fill="#374151">src/config/</text>
+<text x="547.0" y="801" text-anchor="middle" font-size="13.5" fill="#374151">prisma.js</text>
+<rect x="618" y="738" width="130" height="112" rx="7" fill="#ffffff" stroke="#8a5cae" stroke-width="1.6"/>
+<text x="683.0" y="762" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">SQLite</text>
+<text x="683.0" y="783" text-anchor="middle" font-size="13.5" fill="#374151">prisma/dev.db</text>
+<text x="683.0" y="801" text-anchor="middle" font-size="13.5" fill="#374151">migrations</text>
+<rect x="754" y="738" width="128" height="112" rx="7" fill="#ffffff" stroke="#8a5cae" stroke-width="1.6"/>
+<text x="818.0" y="762" text-anchor="middle" font-size="15" font-weight="bold" fill="#111827">Bibliotecas</text>
+<text x="818.0" y="783" text-anchor="middle" font-size="13.5" fill="#374151">bcryptjs</text>
+<text x="818.0" y="801" text-anchor="middle" font-size="13.5" fill="#374151">jsonwebtoken</text>
 </svg>

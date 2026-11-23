@@ -1,48 +1,41 @@
 sequenceDiagram
     autonumber
     actor C as Cliente
-    participant A as API (rota, JWT e controller)
-    participant P as PedidoService
-    participant G as PagamentoService
-    participant GW as Gateway (simulado)
-    participant B as Banco (Prisma / SQLite)
-    actor F as Equipe (Atendente, Cozinha, Gerente)
+    participant A as API<br/>(rota, JWT,<br/>controller)
+    participant S as Services<br/>(pedido e<br/>pagamento)
+    participant G as Gateway<br/>(simulado)
+    participant B as Banco<br/>(Prisma)
+    actor E as Equipe
 
     Note over C,B: 1. Realizar pedido
-    C->>A: POST /pedidos (unidadeId, canalPedido, itens)
-    A->>A: valida o token
-    A->>P: criarPedido(...)
-    P->>B: confere unidade, produtos e estoque
-    alt dado inválido, item inexistente ou estoque insuficiente
-        P-->>A: 422, 404 ou 409
+    C->>A: POST /pedidos<br/>(unidade, canal, itens)
+    A->>S: criarPedido()
+    S->>B: confere unidade,<br/>produtos e estoque
+    alt inválido, inexistente<br/>ou sem estoque
+        S-->>A: erro 422, 404 ou 409
         A-->>C: erro padronizado
-    else pedido válido
-        P->>B: transação: cria pedido e itens, baixa o estoque, grava CRIAR_PEDIDO
-        P-->>A: pedido AGUARDANDO_PAGAMENTO
+    else válido
+        S->>B: transação: cria pedido e<br/>itens, baixa estoque, auditoria
+        S-->>A: AGUARDANDO_PAGAMENTO
         A-->>C: 201 Created
     end
 
-    Note over C,GW: 2. Solicitar pagamento
-    C->>A: POST /pagamentos/processar (pedidoId, resultado)
-    A->>G: processarPagamentoMock(...)
-    G->>B: confere o pedido (existe, é do cliente, sem pagamento anterior)
-    G->>GW: solicita autorização (simulada)
-    GW-->>G: APROVADO ou RECUSADO (vem no corpo da requisição)
+    Note over C,G: 2. Solicitar pagamento
+    C->>A: POST /pagamentos/processar<br/>(pedidoId, resultado)
+    A->>S: processarPagamentoMock()
+    S->>B: confere o pedido
+    S->>G: pede autorização
+    G-->>S: APROVADO ou RECUSADO<br/>(vem no corpo da requisição)
     alt APROVADO
-        G->>B: transação: cria Pagamento, pedido vira PAGO, acumula pontos (se houver consentimento)
-        G->>B: grava PAGAMENTO_APROVADO
-        G-->>A: pagamento aprovado
+        S->>B: pagamento, pedido PAGO,<br/>pontos e auditoria
         A-->>C: 200 OK
     else RECUSADO
-        G->>B: transação: cria Pagamento, pedido vira CANCELADO, devolve estoque e estorna pontos
-        G->>B: grava PAGAMENTO_RECUSADO
-        G-->>A: pagamento recusado
-        A-->>C: 422 (pagamento recusado)
+        S->>B: pagamento, pedido CANCELADO,<br/>estoque e pontos devolvidos
+        A-->>C: 422 pagamento recusado
     end
 
-    Note over F,B: 3. Atualizar status
-    F->>A: PATCH /pedidos/{id}/status (EM_PREPARO, PRONTO, ENTREGUE)
-    A->>P: atualizarStatusPedido(...)
-    P->>B: confere a transição permitida e atualiza o pedido
-    P->>B: grava ATUALIZAR_STATUS_PEDIDO
-    A-->>F: 200 OK
+    Note over E,B: 3. Atualizar status
+    E->>A: PATCH /pedidos/{id}/status
+    A->>S: atualizarStatusPedido()
+    S->>B: valida a transição,<br/>atualiza e audita
+    A-->>E: 200 OK

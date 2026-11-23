@@ -1,8 +1,8 @@
 stateDiagram-v2
-    direction LR
+    direction TB
     [*] --> AGUARDANDO_PAGAMENTO : pedido criado
     AGUARDANDO_PAGAMENTO --> PAGO : pagamento aprovado
-    AGUARDANDO_PAGAMENTO --> CANCELADO : pagamento recusado ou cancelamento
+    AGUARDANDO_PAGAMENTO --> CANCELADO : recusado ou cancelado
     PAGO --> EM_PREPARO : equipe
     PAGO --> CANCELADO : cancelamento
     EM_PREPARO --> PRONTO : equipe
