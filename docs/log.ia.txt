@@ -1,0 +1,107 @@
+Registro de apoio da inteligência artificial nas decisões do projeto
+Projeto: Raízes do Nordeste — API REST para Gestão de Pedidos Multicanal
+
+1. Escolha das tecnologias
+Prompt: To montando a API REST pro meu projeto da faculdade sobre uma rede de lanchonetes (vai ter cadastro de clientes, produtos, controle de estoque e pedidos). Pensando em produtividade e facilidade pra rodar na máquina do professor sem dor de cabeça, Node.js com Express, Prisma e SQLite dá conta do recado? Onde essa stack pode me deixar na mão?
+
+Resposta da IA: Essa stack é excelente para o contexto acadêmico porque elimina a necessidade de subir containers Docker ou configurar servidores externos de banco de dados — o SQLite roda em um único arquivo local e o Prisma oferece tipagem forte e migrations rápidas. O principal gargalo dessa escolha está na concorrência de escrita: o SQLite bloqueia o arquivo inteiro durante operações de gravação (write locks), o que causaria lentidão ou erros sob múltiplos acessos simultâneos em produção, além de não suportar escalabilidade horizontal.
+
+Decisão: Adotar Node.js, Express, Prisma ORM e SQLite para priorizar a portabilidade e o setup imediato em ambiente local, documentando a migração para PostgreSQL como requisito obrigatório caso o sistema avance para produção.
+
+2. Organização da API
+Prompt: O projeto tá crescendo e já tem autenticação, pedidos, pagamentos e estoque. Não quero jogar tudo num arquivo gigante, mas também acho que aplicar Clean Architecture ou DDD completo aqui vai ser matar formiga com bazuca. Qual estrutura de pastas fica limpa e fácil de dar manutenção?
+
+Resposta da IA: Para uma API de médio porte, a arquitetura em camadas (Layered Architecture) oferece o melhor equilíbrio entre organização e simplicidade. Separar o código em routes (definição de endpoints e middlewares), controllers (tratamento de requisição/resposta HTTP) e services (regras de negócio e chamadas ao banco via Prisma) evita acoplamento excessivo sem gerar dezenas de interfaces abstratas desnecessárias.
+
+Decisão: Estruturar o projeto em pastas separadas por responsabilidade (routes, controllers, services, middlewares e config), garantindo que nenhuma regra de negócio fique acoplada às rotas ou ao framework Express.
+
+3. Controle de acesso por perfil
+Prompt: Vou ter quatro tipos de usuário usando o sistema: cliente, atendente, pessoal da cozinha e gerente. Preciso criar tabelas e rotas de login separadas para cada um ou dá pra resolver tudo num lugar só sem virar bagunça?
+
+Resposta da IA: Criar sistemas de autenticação separados gera duplicação de código e dificulta a manutenção. A abordagem padrão é unificar o cadastro e o login em uma única entidade Usuario com um campo de papel (role), aplicando o modelo RBAC (Role-Based Access Control). Assim, um middleware intercepta o token na requisição e verifica se o perfil do usuário tem permissão para acessar aquela rota específica.
+
+Decisão: Unificar a autenticação em uma única tabela com o atributo role (CLIENTE, ATENDENTE, COZINHA, GERENTE). O endpoint público de cadastro cria exclusivamente contas CLIENTE, enquanto perfis internos são criados via seed ou por um GERENTE autenticado.
+
+4. Segurança das senhas e autenticação
+Prompt: Como vou fazer login com e-mail e senha, quais são os cuidados mínimos de segurança que não podem faltar para o projeto não parecer amador? E nesse cenário, faz mais sentido usar sessão no servidor ou JWT?
+
+Resposta da IA: Nunca se deve salvar senhas em texto puro; o uso de algoritmos de hash com salt automático, como o bcrypt, protege os dados mesmo em caso de vazamento do banco. Entre sessão e JWT, o JWT (JSON Web Token) é mais aderente ao padrão REST por ser stateless (não exige armazenamento em memória no servidor), desde que o token carregue apenas dados não sensíveis (ID e role), tenha expiração curta e seja assinado com uma chave secreta protegida.
+
+Decisão: Utilizar bcrypt (com fator de custo 10) para hash das senhas e autenticação stateless via JWT com expiração de 24 horas (1d), armazenando a chave secreta exclusivamente em variáveis de ambiente (.env ignorado no Git).
+
+5. Identificação do canal de origem
+Prompt: A lanchonete recebe pedidos pelo app, totem de autoatendimento, balcão, retirada (pickup) e site. É melhor criar rotas diferentes tipo /pedidos/app e /pedidos/totem ou centralizar tudo num endpoint só?
+
+Resposta da IA: Criar endpoints separados para cada canal duplicaria a lógica de validação de itens, cálculo de totais e baixa de estoque. Como a estrutura do pedido é a mesma independentemente de onde ele veio, o ideal é manter um único recurso REST (POST /pedidos) e exigir o canal de origem como um metadado validado por um Enum. Isso facilita tanto a manutenção quanto a geração futura de relatórios gerenciais por canal.
+
+Decisão: Centralizar a criação de pedidos no endpoint único POST /pedidos, exigindo o campo obrigatório canalPedido validado contra os valores APP, TOTEM, BALCAO, PICKUP e WEB.
+
+6. Fluxo de criação e pagamento
+Prompt: Tô na dúvida se o pedido já deve nascer pago na mesma requisição de criação ou se divido isso em dois momentos. O que facilita mais na hora de controlar os status, lidar com falhas e testar a API?
+
+Resposta da IA: Acoplar criação e pagamento em uma única requisição dificulta o tratamento de falhas (como cartão recusado ou timeout) e impede o rastreamento de pedidos abandonados. Separar o ciclo em duas etapas permite reservar o estoque no momento em que o pedido é criado, registrar o histórico de tentativas de pagamento e manter uma máquina de estados previsível e fácil de testar isoladamente.
+
+Decisão: Desacoplar o fluxo em duas etapas (POST /pedidos seguido de POST /pedidos/:id/pagamento). O pedido é criado com status AGUARDANDO_PAGAMENTO (já reservando os itens do estoque) e só avança para PAGO após a confirmação do pagamento.
+
+7. Controle de estoque por unidade
+Prompt: Como a rede tem várias lojas, o mesmo hambúrguer pode ter 50 unidades no estoque da loja Centro e zero na loja Shopping. Como modelo isso no banco sem precisar cadastrar o mesmo produto duas vezes?
+
+Resposta da IA: O catálogo de produtos deve ser único para manter preços, nomes e descrições padronizados na rede. Para resolver saldos distintos por loja, utiliza-se uma tabela associativa (relação N:N com atributos) ligando Produto e Unidade, contendo o saldo atual e uma restrição de unicidade composta (@@unique([unidadeId, produtoId])) para impedir registros duplicados do mesmo item na mesma filial.
+
+Decisão: Criar a entidade associativa Estoque vinculando Unidade e Produto com uma chave única composta, garantindo saldos independentes por loja sem duplicar o cadastro base do catálogo.
+
+8. Produtos repetidos em um pedido
+Prompt: Se alguém mandar um JSON no pedido com dois objetos iguais na lista de itens (tipo o mesmo refrigerante duas vezes em linhas separadas), devo somar as quantidades por baixo dos panos ou barrar a requisição?
+
+Resposta da IA: Somar itens duplicados automaticamente no backend pode mascarar erros de integração do frontend e complica a validação atômica de saldo em estoque. Rejeitar a requisição com um erro semântico claro torna o contrato da API mais previsível, evita ambiguidades no cálculo de subtotais e força o cliente a enviar um payload limpo e consolidado.
+
+Decisão: Rejeitar requisições que contenham produtoId repetidos no array de itens, retornando status HTTP 422 Unprocessable Entity com orientação explícita para consolidar a quantidade em um único item.
+
+9. Simulação de pagamento
+Prompt: O trabalho exige demonstrar o fluxo de pagamento, mas obviamente não vou integrar com Stripe ou Mercado Pago real. Como monto uma simulação que não fique superficial e permita testar tanto compra aprovada quanto recusada?
+
+Resposta da IA: A melhor forma de simular um gateway sem perder realismo é criar um endpoint dedicado de processamento que receba o método de pagamento e um parâmetro explícito de simulação (ou regra determinística). O sistema deve persistir a transação com um identificador fictício, tratar a aprovação avançando o pedido e, no caso de recusa, executar uma ação compensatória para estornar os itens reservados ao estoque.
+
+Decisão: Implementar um endpoint de pagamento simulado (POST /pedidos/:id/pagamento) que aceita os cenários APROVADO e RECUSADO. A aprovação altera o pedido para PAGO e credita pontos de fidelidade; a recusa muda o pedido para CANCELADO e devolve automaticamente as quantidades ao estoque da unidade.
+
+10. Regras de atualização do pedido
+Prompt: Um pedido passa por vários status até chegar no cliente. Como evito que alguém na cozinha ou no balcão mude um pedido direto de "aguardando pagamento" para "entregue" sem querer?
+
+Resposta da IA: Esse problema é resolvido implementando uma máquina de estados finitos (Finite State Machine) no service de pedidos. Mapeia-se explicitamente quais transições são válidas a partir do estado atual, bloqueando saltos de etapa, retrocessos ou alterações em estados terminais.
+
+Decisão: Implementar validação rigorosa de transição de estados seguindo a ordem linear AGUARDANDO_PAGAMENTO → PAGO → EM_PREPARO → PRONTO → ENTREGUE (com CANCELADO permitido apenas antes do preparo). Transições fora dessa regra retornam HTTP 409 Conflict ou 422 Unprocessable Entity, e os estados ENTREGUE e CANCELADO são imutáveis.
+
+11. Programa de fidelidade
+Prompt: Quero colocar um sisteminha de fidelidade para dar um diferencial no projeto. Qual regra de acúmulo e resgate de pontos é simples o suficiente pra não complicar o cálculo do pedido, mas completa o bastante pra fazer sentido?
+
+Resposta da IA: Uma proporção decimal direta (como 1 ponto por real gasto) facilita a conferência manual nos testes. Para evitar distorções financeiras e garantir transparência, os pontos só devem ser creditados após a confirmação do pagamento, o resgate deve ter um teto percentual sobre o valor do pedido, e cada movimentação precisa gerar um registro de extrato (ledger) para auditoria do saldo.
+
+Decisão: Estabelecer o acúmulo de 1 ponto por R$ 1,00 efetivamente pago (creditado apenas no status PAGO) e o resgate na proporção de 10 pontos = R$ 1,00 de desconto, limitado a no máximo 50% do subtotal do pedido, com registro histórico de entradas e saídas.
+
+12. Cuidados com a LGPD
+Prompt: Como vou guardar nome, e-mail, senha e histórico de compras, preciso me preocupar com a LGPD mesmo sendo um trabalho acadêmico? Se o cliente pedir para apagar a conta, deleto os pedidos junto ou isso quebra os relatórios da lanchonete?
+
+Resposta da IA: Em sistemas comerciais, excluir pedidos antigos quebra a integridade fiscal e o histórico de estoque. A LGPD permite manter registros transacionais desde que os dados pessoais vinculados sejam eliminados ou irreversivelmente anonimizados. Além disso, o sistema deve respeitar os direitos do titular oferecendo visualização, portabilidade (exportação) e consentimento explícito para funcionalidades não essenciais, como programas de fidelidade.
+
+Decisão: Documentar as bases legais (execução de contrato para pedidos e consentimento explícito para fidelidade) e implementar endpoints para o titular consultar (GET /clientes/me), exportar (GET /clientes/me/exportar) e anonimizar seus dados (DELETE /clientes/me), substituindo nome e e-mail por identificadores genéricos sem apagar o histórico financeiro dos pedidos.
+
+13. Padronização dos erros
+Prompt: Minha API tá começando a retornar vários tipos de erro: token inválido, falta de permissão, estoque zerado, pagamento repetido... Como padronizo esse retorno para quem for consumir a API entender rápido o que deu errado?
+
+Resposta da IA: Padronizar o payload de erro por meio de um middleware global de tratamento de exceções (Error Handler) evita vazamento de stack traces e facilita o consumo por qualquer frontend. Cada resposta deve combinar o código de status HTTP semântico (400, 401, 403, 404, 409, 422) com um corpo JSON uniforme contendo código interno, mensagem legível, detalhes de validação, timestamp e rota acessada.
+
+Decisão: Criar um middleware global de erros padronizando todas as falhas no formato { error, message, details, timestamp, path }, utilizando códigos HTTP semânticos (como 409 Conflict para tentativa de pagamento duplicado e 422 Unprocessable Entity para estoque insuficiente ou recusa de pagamento).
+
+14. Planejamento dos testes
+Prompt: Preciso provar na apresentação que a API funciona e trata bem os erros. Quais cenários não podem faltar nos testes automatizados do Postman para cobrir os pontos críticos do sistema?
+
+Resposta da IA: Uma suíte de testes consistente deve validar tanto o "caminho feliz" (fluxo completo de ponta a ponta) quanto os bloqueios das regras de negócio. No Postman, o uso de variáveis de ambiente preenchidas via scripts de teste (pm.environment.set) permite encadear requisições automaticamente — capturando o token de login e o ID do pedido criado para alimentar os passos seguintes.
+
+Decisão: Estruturar a coleção no Postman dividida em fluxos positivos (cadastro, login, criação de pedido com fidelidade, pagamento aprovado e avanço até entrega) e testes negativos (acesso sem token, quebra de RBAC, estoque insuficiente, item duplicado, transição inválida de status e pagamento duplicado), utilizando scripts de asserção automática (pm.test) e variáveis encadeadas.
+
+15. Definição do escopo e das limitações
+Prompt: Como o tempo da disciplina é curto, preciso fechar o escopo sem deixar o projeto pela metade. O que vale a pena entregar funcionando 100% no código e o que faz sentido deixar apenas documentado como evolução futura?
+
+Resposta da IA: Em projetos acadêmicos, um núcleo funcional bem testado, seguro e documentado tem muito mais valor do que dezenas de funcionalidades superficiais ou com bugs. O ideal é garantir que o fluxo transacional principal funcione sem falhas e registrar explicitamente no README as limitações técnicas inerentes ao escopo acadêmico, demonstrando maturidade arquitetural.
+
+Decisão: Entregar 100% funcionais os módulos de autenticação/RBAC, catálogo, estoque multiunidade, pedidos multicanal, máquina de estados, fidelidade, LGPD e pagamento simulado. Deixar documentados como evoluções futuras o motor de cupons promocionais, integração com gateways reais e tratamento de concorrência distribuída.
